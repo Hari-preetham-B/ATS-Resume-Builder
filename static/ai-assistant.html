@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Career Assistant | ATS Resume Builder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f0c29;
+            color: #fff;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+        /* Sidebar for conversation history */
+        .sidebar {
+            width: 280px;
+            background: rgba(20, 25, 60, 0.4);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(100, 150, 255, 0.15);
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #4df, #a2f);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .new-chat-btn {
+            margin: 15px;
+            padding: 10px;
+            background: linear-gradient(135deg, #4df, #a2f);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .search-box {
+            margin: 0 15px 15px 15px;
+            position: relative;
+        }
+        .search-box input {
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 8px 12px 8px 32px;
+            color: white;
+        }
+        .search-box i {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #88a;
+            font-size: 0.8rem;
+        }
+        .conversations-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 10px;
+        }
+        .conv-item {
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        .conv-item:hover {
+            background: rgba(68, 221, 255, 0.1);
+            border-color: rgba(68, 221, 255, 0.3);
+        }
+        .conv-item.active {
+            background: rgba(68, 221, 255, 0.2);
+            border-color: #4df;
+        }
+        .conv-title {
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 4px;
+            word-break: break-word;
+        }
+        .conv-date {
+            font-size: 0.7rem;
+            color: #88a;
+        }
+        .delete-conv {
+            float: right;
+            color: #ff6680;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .conv-item:hover .delete-conv {
+            opacity: 1;
+        }
+        /* Main chat area */
+        .main-chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow: hidden;
+        }
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .chat-header h2 {
+            color: #4df;
+        }
+        .speech-controls {
+            display: flex;
+            gap: 10px;
+        }
+        .speech-controls button {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            color: white;
+        }
+        .speech-controls button:hover {
+            background: #4df;
+            color: black;
+        }
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 16px;
+            margin-bottom: 20px;
+        }
+        .message {
+            display: flex;
+            margin-bottom: 16px;
+            animation: fadeIn 0.3s;
+        }
+        .message.user {
+            justify-content: flex-end;
+        }
+        .message.bot {
+            justify-content: flex-start;
+        }
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        .user .message-content {
+            background: linear-gradient(135deg, #4df, #a2f);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        .bot .message-content {
+            background: rgba(255,255,255,0.1);
+            color: #eee;
+            border-bottom-left-radius: 4px;
+        }
+        .timestamp {
+            font-size: 0.7rem;
+            color: #88a;
+            margin-top: 4px;
+            text-align: right;
+        }
+        .input-area {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            background: rgba(255,255,255,0.05);
+            border-radius: 40px;
+            padding: 8px 16px;
+        }
+        .input-area input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1rem;
+            padding: 12px 0;
+            outline: none;
+        }
+        .input-area button {
+            background: #4df;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            color: black;
+            transition: all 0.2s;
+        }
+        .input-area button:hover {
+            transform: scale(1.05);
+        }
+        .voice-btn {
+            background: rgba(255,255,255,0.1);
+        }
+        .voice-btn.recording {
+            background: #ff3366;
+            color: white;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            70% { transform: scale(1.1); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .typing-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            margin-bottom: 16px;
+        }
+        .typing-indicator span {
+            width: 6px;
+            height: 6px;
+            background: #4df;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.5); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">ResumePro AI</div>
+        </div>
+        <button class="new-chat-btn" id="newChatBtn"><i class="fa-solid fa-plus"></i> New Conversation</button>
+        <div class="search-box">
+            <i class="fa-solid fa-search"></i>
+            <input type="text" id="searchConv" placeholder="Search conversations...">
+        </div>
+        <div class="conversations-list" id="conversationsList">
+            <!-- dynamic list -->
+        </div>
+    </div>
+
+    <!-- Main Chat -->
+    <div class="main-chat">
+        <div class="chat-header">
+            <h2><i class="fa-solid fa-robot"></i> AI Career Coach</h2>
+            <div class="speech-controls">
+                <button id="stopSpeechBtn" title="Stop speaking"><i class="fa-solid fa-stop"></i></button>
+            </div>
+        </div>
+        <div class="messages-area" id="messagesArea">
+            <!-- messages appear here -->
+        </div>
+        <div class="input-area">
+            <input type="text" id="messageInput" placeholder="Ask me anything... (or click mic to speak)">
+            <button id="voiceInputBtn" class="voice-btn" title="Speak"><i class="fa-solid fa-microphone"></i></button>
+            <button id="sendBtn"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // -------------------- Global variables --------------------
+    let currentConversationId = null;
+    let conversations = [];      // list of {id, title, updated_at}
+    let currentMessages = [];    // array of {role, text, timestamp}
+    let speechSynthesis = window.speechSynthesis;
+    let currentUtterance = null;
+    let recognition = null;
+    let isRecording = false;
+    let titleGenerated = false;
+
+    // Personality prompt for AI (career coach)
+    const SYSTEM_PROMPT = "You are a friendly, professional career coach and resume expert. Help users improve their resumes, prepare for interviews, and optimize for ATS. Keep answers concise, practical, and encouraging. Always be helpful and positive.";
+
+    // -------------------- DOM elements --------------------
+    const conversationsListEl = document.getElementById('conversationsList');
+    const messagesArea = document.getElementById('messagesArea');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const voiceBtn = document.getElementById('voiceInputBtn');
+    const newChatBtn = document.getElementById('newChatBtn');
+    const searchInput = document.getElementById('searchConv');
+    const stopSpeechBtn = document.getElementById('stopSpeechBtn');
+
+    // -------------------- Helper functions --------------------
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        }).replace(/\n/g, '<br>');
+    }
+
+    function formatDate(isoString) {
+        const date = new Date(isoString);
+        return date.toLocaleString();
+    }
+
+    function scrollToBottom() {
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+    }
+
+    function renderMessages() {
+        messagesArea.innerHTML = '';
+        currentMessages.forEach(msg => {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${msg.role}`;
+            messageDiv.innerHTML = `
+                <div class="message-content">
+                    ${escapeHtml(msg.text)}
+                    <div class="timestamp">${msg.timestamp ? formatDate(msg.timestamp) : ''}</div>
+                </div>
+            `;
+            messagesArea.appendChild(messageDiv);
+        });
+        scrollToBottom();
+    }
+
+    function addMessageToUI(role, text) {
+        const timestamp = new Date().toISOString();
+        currentMessages.push({ role, text, timestamp });
+        renderMessages();
+        saveCurrentConversation();
+        // Trigger title generation after the first real AI reply (welcome + first user message + answer = 2 bot messages)
+        if (role === 'bot' && currentMessages.filter(m => m.role === 'bot').length === 2 && !titleGenerated) {
+            generateConversationTitle();
+        }
+    }
+
+    // -------------------- AI‑powered title generation --------------------
+    async function generateConversationTitle() {
+        if (titleGenerated) return;
+        const firstUserMsg = currentMessages.find(m => m.role === 'user')?.text || '';
+        const firstBotMsg = currentMessages.find(m => m.role === 'bot')?.text || '';
+        if (!firstUserMsg && !firstBotMsg) return;
+
+        const prompt = `Based on this conversation starter, generate a very short title (2‑6 words) that captures the topic. Reply with ONLY the title, no extra text or quotes.\n\nUser: ${firstUserMsg}\nAI: ${firstBotMsg}\n\nTitle:`;
+
+        try {
+            const res = await fetch('/api/ai/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({
+                    userMessage: prompt,
+                    resumeContent: '',
+                    systemPrompt: "You are a title generator. Output only the title, no extra words."
+                })
+            });
+            const data = await res.json();
+            let newTitle = data.response || '';
+            newTitle = newTitle.replace(/^["']|["']$/g, '').trim();
+            if (newTitle.length > 40) newTitle = newTitle.substring(0, 40);
+            if (newTitle && newTitle !== "New Conversation") {
+                await updateConversationTitle(newTitle);
+                titleGenerated = true;
+                await loadConversationsList();
+                if (currentConversationId) {
+                    document.querySelectorAll('.conv-item').forEach(el => {
+                        if (el.dataset.id === currentConversationId) el.classList.add('active');
+                    });
+                }
+            }
+        } catch (err) {
+            console.warn('Title generation failed', err);
+        }
+    }
+
+    async function updateConversationTitle(newTitle) {
+        if (!currentConversationId) return;
+        const payload = {
+            id: currentConversationId,
+            title: newTitle,
+            messages: currentMessages
+        };
+        try {
+            const response = await fetch('/api/conversations/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(payload)
+            });
+            if (!response.ok) {
+                console.error('Title save failed', await response.text());
+                return;
+            }
+            const convIndex = conversations.findIndex(c => c.id === currentConversationId);
+            if (convIndex !== -1) {
+                conversations[convIndex].title = newTitle;
+            }
+            renderConversationsList();
+        } catch (err) {
+            console.error('Title update error', err);
+        }
+    }
+
+    async function saveCurrentConversation() {
+        if (!currentConversationId && currentMessages.length === 0) return;
+        let title = "New Conversation";
+        if (titleGenerated && currentConversationId) {
+            const conv = conversations.find(c => c.id === currentConversationId);
+            if (conv && conv.title !== "New Conversation") title = conv.title;
+        }
+        if (!titleGenerated && currentMessages.length > 0) {
+            const firstUserText = currentMessages.find(m => m.role === 'user')?.text || '';
+            title = firstUserText.length > 40 ? firstUserText.substring(0, 40) + '…' : (firstUserText || "New Conversation");
+        }
+        try {
+            const res = await fetch('/api/conversations/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({
+                    id: currentConversationId,
+                    title: title,
+                    messages: currentMessages
+                })
+            });
+            const data = await res.json();
+            if (data.id && !currentConversationId) {
+                currentConversationId = data.id;
+            }
+            await loadConversationsList();
+        } catch (err) {
+            console.error('Save conversation error:', err);
+        }
+    }
+
+    async function loadConversation(convId) {
+        try {
+            const res = await fetch(`/api/conversations/get/${convId}`, { credentials: 'include' });
+            if (res.ok) {
+                const conv = await res.json();
+                currentConversationId = conv.id;
+                currentMessages = conv.messages || [];
+                const defaultTitle = currentMessages.length > 0 
+                    ? (currentMessages[0].text?.substring(0, 40) || "New Conversation")
+                    : "New Conversation";
+                titleGenerated = conv.title && conv.title !== defaultTitle && conv.title !== "New Conversation";
+                renderMessages();
+                document.querySelectorAll('.conv-item').forEach(el => {
+                    el.classList.remove('active');
+                    if (el.dataset.id === convId) el.classList.add('active');
+                });
+            }
+        } catch (err) {
+            console.error('Load conversation error:', err);
+        }
+    }
+
+    async function loadConversationsList() {
+        try {
+            const res = await fetch('/api/conversations/list', { credentials: 'include' });
+            if (res.ok) {
+                conversations = await res.json();
+                renderConversationsList();
+            }
+        } catch (err) {
+            console.error('Load list error:', err);
+        }
+    }
+
+    function renderConversationsList() {
+        const searchTerm = searchInput.value.toLowerCase();
+        let filtered = conversations.filter(c => c.title.toLowerCase().includes(searchTerm));
+        conversationsListEl.innerHTML = filtered.map(conv => `
+            <div class="conv-item ${currentConversationId === conv.id ? 'active' : ''}" data-id="${conv.id}">
+                <div class="conv-title">${escapeHtml(conv.title)}</div>
+                <div class="conv-date">${formatDate(conv.updated_at)}</div>
+                <button class="delete-conv" data-id="${conv.id}" title="Delete"><i class="fa-solid fa-trash"></i></button>
+            </div>
+        `).join('');
+
+        document.querySelectorAll('.conv-item').forEach(el => {
+            el.addEventListener('click', (e) => {
+                if (e.target.closest('.delete-conv')) return;
+                const id = el.dataset.id;
+                if (id) loadConversation(id);
+            });
+        });
+        document.querySelectorAll('.delete-conv').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const id = btn.dataset.id;
+                if (confirm('Delete this conversation?')) {
+                    await fetch(`/api/conversations/delete/${id}`, { method: 'DELETE', credentials: 'include' });
+                    if (currentConversationId === id) {
+                        await newConversation();
+                    }
+                    await loadConversationsList();
+                }
+            });
+        });
+    }
+
+    async function newConversation() {
+        currentConversationId = null;
+        currentMessages = [];
+        titleGenerated = false;
+        renderMessages();
+        const welcomeMsg = "Hello! I'm your AI Career Coach. How can I help you with your resume or career today?";
+        addMessageToUI('bot', welcomeMsg);
+        speakText(welcomeMsg);
+        document.querySelectorAll('.conv-item').forEach(el => el.classList.remove('active'));
+    }
+
+    async function sendMessage() {
+        const userText = messageInput.value.trim();
+        if (!userText) return;
+        messageInput.value = '';
+        addMessageToUI('user', userText);
+
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'typing-indicator';
+        typingDiv.innerHTML = '<span></span><span></span><span></span>';
+        messagesArea.appendChild(typingDiv);
+        scrollToBottom();
+
+        try {
+            const response = await fetch('/api/ai/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({
+                    userMessage: userText,
+                    resumeContent: '',
+                    systemPrompt: SYSTEM_PROMPT
+                })
+            });
+            const data = await response.json();
+            const botReply = data.response || "Sorry, I couldn't process that.";
+            messagesArea.removeChild(typingDiv);
+            addMessageToUI('bot', botReply);
+            speakText(botReply);
+        } catch (err) {
+            messagesArea.removeChild(typingDiv);
+            const errorMsg = "Network error. Please try again.";
+            addMessageToUI('bot', errorMsg);
+            speakText(errorMsg);
+        }
+    }
+
+    function speakText(text) {
+        if (currentUtterance) {
+            speechSynthesis.cancel();
+            currentUtterance = null;
+        }
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 1.0;
+        utterance.pitch = 1.1;
+        utterance.voice = speechSynthesis.getVoices().find(voice => voice.lang === 'en-US' && voice.name.includes('Google')) || null;
+        currentUtterance = utterance;
+        speechSynthesis.speak(utterance);
+        utterance.onend = () => { currentUtterance = null; };
+        utterance.onerror = () => { currentUtterance = null; };
+    }
+
+    function stopSpeech() {
+        if (speechSynthesis.speaking || speechSynthesis.paused) {
+            speechSynthesis.cancel();
+            currentUtterance = null;
+        }
+    }
+
+    function startVoiceInput() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert('Voice input not supported in this browser.');
+            return;
+        }
+        if (recognition) {
+            recognition.stop();
+            recognition = null;
+            voiceBtn.classList.remove('recording');
+            return;
+        }
+        recognition = new SpeechRecognition();
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+        recognition.onstart = () => {
+            voiceBtn.classList.add('recording');
+            voiceBtn.innerHTML = '<i class="fa-solid fa-stop"></i>';
+            isRecording = true;
+        };
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            messageInput.value = transcript;
+            sendMessage();
+        };
+        recognition.onerror = (event) => {
+            console.error('Speech error:', event.error);
+            voiceBtn.classList.remove('recording');
+            voiceBtn.innerHTML = '<i class="fa-solid fa-microphone"></i>';
+            recognition = null;
+            isRecording = false;
+        };
+        recognition.onend = () => {
+            voiceBtn.classList.remove('recording');
+            voiceBtn.innerHTML = '<i class="fa-solid fa-microphone"></i>';
+            recognition = null;
+            isRecording = false;
+        };
+        recognition.start();
+    }
+
+    // -------------------- Event listeners --------------------
+    sendBtn.addEventListener('click', sendMessage);
+    messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+    voiceBtn.addEventListener('click', startVoiceInput);
+    newChatBtn.addEventListener('click', async () => {
+        await newConversation();
+        await loadConversationsList();
+    });
+    searchInput.addEventListener('input', () => renderConversationsList());
+    stopSpeechBtn.addEventListener('click', stopSpeech);
+
+    // -------------------- Initialization --------------------
+    async function init() {
+        const authRes = await fetch('/api/auth/user', { credentials: 'include' });
+        const authData = await authRes.json();
+        if (!authData.isLoggedIn) {
+            window.location.href = 'login.html';
+            return;
+        }
+        await loadConversationsList();
+        if (conversations.length === 0) {
+            await newConversation();
+        } else {
+            const mostRecent = conversations[0];
+            if (mostRecent) await loadConversation(mostRecent.id);
+            else await newConversation();
+        }
+    }
+    init();
+</script>
+</body>
+</html>

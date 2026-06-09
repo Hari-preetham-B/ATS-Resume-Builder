@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATS Templates | ATS Resume Builder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <style>
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            padding: 20px 0;
+            overflow-y: auto;
+            max-height: calc(100vh - 120px);
+        }
+
+        .template-viewer {
+            background: rgba(20, 25, 60, 0.4);
+            border: 1px solid rgba(100, 150, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            position: relative;
+        }
+
+        .template-preview {
+            background: #fff;
+            aspect-ratio: 1 / 1.414; /* A4 Ratio */
+            border-radius: 4px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            opacity: 0.9;
+            transition: all 0.3s ease;
+        }
+
+        .template-viewer:hover .template-preview {
+            opacity: 1;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+        }
+
+        .template-info {
+            text-align: center;
+        }
+
+        .template-info h3 {
+            color: #fff;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .template-info p {
+            color: #88a;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        /* Mock specific template styles inside previews */
+        /* 1. Classic */
+        .preview-classic .mock-head { text-align: center; margin-bottom: 10px; border-bottom: 2px solid #333; padding-bottom: 5px;}
+        .preview-classic .mock-name { height: 12px; background: #333; margin: 0 auto 5px; width: 60%; }
+        .preview-classic .mock-sec { height: 8px; background: #555; width: 30%; margin-top: 10px; margin-bottom: 5px;}
+        .preview-classic .mock-text { height: 4px; background: #999; width: 100%; margin-bottom: 3px;}
+        .preview-classic .mock-text.w-80 { width: 80%; }
+        
+        /* 2. Modern */
+        .preview-modern { display: flex; flex-direction: row; gap: 10px; padding: 0;}
+        .preview-modern .left-col { width: 35%; background: #2c3e50; padding: 10px; height: 100%; }
+        .preview-modern .right-col { width: 65%; padding: 10px; }
+        .preview-modern .left-col .mock-name { height: 10px; background: #fff; width: 80%; margin-bottom: 10px;}
+        .preview-modern .left-col .mock-text { height: 4px; background: rgba(255,255,255,0.5); margin-bottom: 3px;}
+        .preview-modern .right-col .mock-sec { height: 8px; background: #2c3e50; width: 40%; margin-bottom: 8px;}
+        .preview-modern .right-col .mock-text { height: 4px; background: #bbb; margin-bottom: 3px;}
+
+         /* 3. Student */
+        .preview-student .mock-head { text-align: left; }
+        .preview-student .mock-name { height: 14px; background: #2980b9; margin-bottom: 5px; width: 50%; }
+        .preview-student .mock-sec { height: 8px; background: #2980b9; width: 100%; margin-top: 10px; margin-bottom: 5px;}
+        .preview-student .mock-text { height: 4px; background: #999; margin-bottom: 3px;}
+
+        /* 4. Developer */
+        .preview-dev .mock-head { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 10px;}
+        .preview-dev .mock-name { height: 12px; background: #27ae60; width: 40%; }
+        .preview-dev .mock-contact { height: 6px; background: #7f8c8d; width: 30%; }
+        .preview-dev .mock-sec-title { color: #27ae60; font-size: 6px; font-weight: bold; margin-top: 5px; }
+        .preview-dev .mock-text-block { border-left: 2px solid #27ae60; padding-left: 5px; margin-bottom: 5px;}
+        .preview-dev .mock-text { height: 4px; background: #555; margin-bottom: 3px; }
+
+        /* Current Selection Tag */
+        .selected-tag {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #4df;
+            color: #000;
+            font-size: 0.7rem;
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 10px;
+            z-index: 10;
+            display: none;
+        }
+
+        .template-viewer.active {
+            border-color: #4df;
+            box-shadow: 0 0 15px rgba(68, 221, 255, 0.2);
+        }
+
+        .template-viewer.active .selected-tag {
+            display: block;
+        }
+    </style>
+</head>
+<body id="templates-page" class="layout-app">
+
+    <aside class="sidebar premium-glass panel-glow">
+        <div class="sidebar-header">
+            <span class="logo-icon"><i class="fa-solid fa-file-contract neon-text-blue"></i></span>
+            <span class="logo-text font-bold text-white">Resume<span class="neon-text-blue">Pro</span></span>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="dashboard.html"><i class="fa-solid fa-house"></i> Dashboard</a></li>
+            <li><a href="builder.html"><i class="fa-solid fa-file-signature"></i> Create Resume</a></li>
+            <li><a href="templates.html" class="active"><i class="fa-solid fa-layer-group"></i> ATS Templates</a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <a href="#" id="logout-btn" class="logout-link"><i class="fa-solid fa-power-off"></i> Logout</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <h2 class="neon-text-blue reveal">ATS Compliant Templates</h2>
+                <p class="text-muted text-sm reveal" style="transition-delay: 0.1s;">Select a format. All templates are specifically designed to pass ATS bots.</p>
+            </div>
+        </header>
+
+        <section class="templates-grid">
+            
+            <!-- Classic Template -->
+            <div class="template-viewer hover-lift reveal" style="transition-delay: 0.2s;" data-template="classic">
+                <div class="selected-tag">SELECTED</div>
+                <div class="template-preview preview-classic">
+                    <div class="mock-head">
+                        <div class="mock-name"></div>
+                        <div class="mock-text w-80" style="margin: 0 auto;"></div>
+                    </div>
+                    <div class="mock-sec"></div>
+                    <div class="mock-text"></div> <div class="mock-text w-80"></div>
+                    <div class="mock-sec"></div>
+                    <div class="mock-text"></div> <div class="mock-text"></div> <div class="mock-text w-80"></div>
+                    <div class="mock-sec"></div>
+                    <div class="mock-text"></div> <div class="mock-text w-80"></div>
+                </div>
+                <div class="template-info">
+                    <h3>Classic ATS</h3>
+                    <p>Clean single-column layout. The gold standard for ATS readability.</p>
+                    <button class="btn btn-outline btn-full select-btn">Use Template</button>
+                </div>
+            </div>
+
+            <!-- Modern Template -->
+            <div class="template-viewer hover-lift reveal" style="transition-delay: 0.3s;" data-template="modern">
+                <div class="selected-tag">SELECTED</div>
+                <div class="template-preview preview-modern">
+                    <div class="left-col">
+                        <div class="mock-name"></div>
+                        <div class="mock-text"></div><div class="mock-text" style="width: 70%;"></div>
+                        <div style="margin-top:20px;"></div>
+                        <div class="mock-text"></div><div class="mock-text"></div><div class="mock-text"></div>
+                    </div>
+                    <div class="right-col">
+                        <div class="mock-sec"></div>
+                        <div class="mock-text"></div><div class="mock-text"></div><div class="mock-text" style="width: 80%;"></div>
+                        <div style="margin-top:10px;"></div>
+                        <div class="mock-sec"></div>
+                        <div class="mock-text"></div><div class="mock-text"></div><div class="mock-text" style="width: 80%;"></div>
+                    </div>
+                </div>
+                <div class="template-info">
+                    <h3>Modern ATS</h3>
+                    <p>Professional two-column layout. Best for creative fields.</p>
+                    <button class="btn btn-outline btn-full select-btn">Use Template</button>
+                </div>
+            </div>
+
+            <!-- Student Template -->
+            <div class="template-viewer hover-lift reveal" style="transition-delay: 0.4s;" data-template="student">
+                <div class="selected-tag">SELECTED</div>
+                <div class="template-preview preview-student">
+                    <div class="mock-head">
+                        <div class="mock-name"></div>
+                        <div class="mock-text" style="width: 60%;"></div>
+                    </div>
+                    <div class="mock-sec"></div>
+                    <div class="mock-text"></div><div class="mock-text" style="width: 80%;"></div>
+                    <div class="mock-sec"></div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 5px;">
+                        <div><div class="mock-text"></div><div class="mock-text"></div></div>
+                        <div><div class="mock-text"></div><div class="mock-text"></div></div>
+                    </div>
+                    <div class="mock-sec"></div>
+                    <div class="mock-text"></div><div class="mock-text" style="width: 90%;"></div>
+                </div>
+                <div class="template-info">
+                    <h3>Student / Fresher</h3>
+                    <p>Highlights education and projects. Ideal for entry-level roles.</p>
+                    <button class="btn btn-outline btn-full select-btn">Use Template</button>
+                </div>
+            </div>
+
+            <!-- Developer Template -->
+            <div class="template-viewer hover-lift reveal" style="transition-delay: 0.5s;" data-template="developer">
+                <div class="selected-tag">SELECTED</div>
+                <div class="template-preview preview-dev">
+                    <div class="mock-head">
+                        <div class="mock-name"></div>
+                        <div class="mock-contact"></div>
+                    </div>
+                    <div class="mock-sec-title">TECHNICAL SKILLS</div>
+                    <div class="mock-text-block">
+                        <div class="mock-text"></div>
+                        <div class="mock-text" style="width: 80%;"></div>
+                    </div>
+                     <div class="mock-sec-title">EXPERIENCE</div>
+                    <div class="mock-text-block">
+                        <div class="mock-text"></div>
+                        <div class="mock-text"></div>
+                        <div class="mock-text" style="width: 90%;"></div>
+                    </div>
+                     <div class="mock-sec-title">PROJECTS</div>
+                    <div class="mock-text-block">
+                         <div class="mock-text"></div>
+                        <div class="mock-text" style="width: 70%;"></div>
+                    </div>
+                </div>
+                <div class="template-info">
+                    <h3>Developer ATS</h3>
+                    <p>Designed for SWEs. Emphasizes tech stack and github links.</p>
+                    <button class="btn btn-outline btn-full select-btn">Use Template</button>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+             const templateCards = document.querySelectorAll('.template-viewer');
+             const savedTemplate = localStorage.getItem('ats_selected_template') || 'classic';
+
+             // Initialize selection based on localStorage
+             templateCards.forEach(card => {
+                 if(card.dataset.template === savedTemplate) {
+                     card.classList.add('active');
+                     card.querySelector('.select-btn').textContent = 'Selected';
+                     card.querySelector('.select-btn').classList.replace('btn-outline', 'btn-neon');
+                     card.querySelector('.select-btn').style.background = 'rgba(0, 150, 255, 0.2)';
+                 }
+
+                 // Handle selection click
+                 card.querySelector('.select-btn').addEventListener('click', function() {
+                     // Reset all
+                     templateCards.forEach(c => {
+                         c.classList.remove('active');
+                         const btn = c.querySelector('.select-btn');
+                         btn.textContent = 'Use Template';
+                         btn.classList.replace('btn-neon', 'btn-outline');
+                         btn.style.background = '';
+                     });
+
+                     // Activate clicked
+                     card.classList.add('active');
+                     this.textContent = 'Selected';
+                     this.classList.replace('btn-outline', 'btn-neon');
+                     this.style.background = 'rgba(0, 150, 255, 0.2)';
+                     
+                     // Save to storage
+                     localStorage.setItem('ats_selected_template', card.dataset.template);
+                     
+                     // Optional: Redirect to builder after short delay
+                     setTimeout(() => {
+                         window.location.href = 'builder.html';
+                     }, 800);
+                 });
+             });
+        });
+    </script>
+</body>
+</html>

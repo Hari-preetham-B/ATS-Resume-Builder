@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile | ATS Resume Builder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="profile.css">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <style>
+        .detail-item.full-width {
+            grid-column: 1 / -1;
+        }
+        textarea.edit-input {
+            width: 100%;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body id="profile-page" class="layout-app">
+
+<div class="bg-shapes" style="opacity: 0.6;">
+    <div class="shape shape-1" style="width: 30vw; height: 30vw; background: rgba(0, 150, 255, 0.4);"></div>
+    <div class="shape shape-2" style="width: 25vw; height: 25vw; right: -5%; top: 20%; background: rgba(255, 0, 127, 0.3);"></div>
+    <div class="shape shape-3" style="width: 40vw; height: 40vw; left: 10%; bottom: -10%; background: rgba(138, 43, 226, 0.4);"></div>
+</div>
+
+<aside class="sidebar premium-glass panel-glow">
+    <div class="sidebar-header">
+        <span class="logo-icon"><i class="fa-solid fa-file-contract neon-text-blue"></i></span>
+        <span class="logo-text font-bold text-white">Resume<span class="neon-text-blue">Pro</span></span>
+    </div>
+    <div class="sidebar-profile" id="sidebar-profile">
+        <div class="profile-img-container">
+            <img src="https://via.placeholder.com/150" alt="Profile" id="side-profile-img">
+        </div>
+        <div class="profile-info">
+            <h4 id="side-username">User Name</h4>
+            <p>Premium Member</p>
+        </div>
+    </div>
+    <ul class="sidebar-menu">
+        <li><a href="dashboard.html"><i class="fa-solid fa-house"></i> Dashboard</a></li>
+        <li><a href="builder.html"><i class="fa-solid fa-file-signature"></i> Create Resume</a></li>
+        <li><a href="templates.html"><i class="fa-solid fa-layer-group"></i> ATS Templates</a></li>
+    </ul>
+</aside>
+
+<main class="main-content">
+    <header class="topbar">
+        <div>
+            <h2 class="neon-text-blue">User Profile</h2>
+            <p class="text-muted text-sm">Manage your personal information and account settings.</p>
+        </div>
+        <div class="topbar-actions">
+            <div class="theme-toggle" style="display: inline-block; vertical-align: middle; margin-right: 15px;">
+                <button id="theme-switch" title="Toggle Dark/Light Mode" style="background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-main); width: 40px; height: 40px; border-radius: 50%; cursor: pointer;"><i class="fa-solid fa-sun"></i></button>
+            </div>
+            <a href="dashboard.html" class="btn btn-outline btn-sm"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</a>
+        </div>
+    </header>
+
+    <section class="profile-container mt-4">
+        <div class="profile-card premium-glass panel-glow reveal">
+            <div class="profile-header">
+                <div class="header-main">
+                    <div class="large-profile-img-wrapper">
+                        <div class="large-profile-img">
+                            <img src="https://via.placeholder.com/150" alt="Profile" id="main-profile-img">
+                            <label for="profile-upload" class="img-edit-btn"><i class="fa-solid fa-camera"></i></label>
+                            <input type="file" id="profile-upload" hidden accept="image/png, image/jpeg">
+                        </div>
+                        <button type="button" class="btn btn-xxs btn-outline mt-2" onclick="document.getElementById('profile-upload').click()">Change Image</button>
+                        <div id="img-error" class="field-error-msg" style="display: none; font-size: 0.7rem; margin-top: 5px;"></div>
+                    </div>
+                    <div class="profile-title">
+                        <h2 id="display-fullname">Full Name</h2>
+                        <p id="display-username">@username</p>
+                        <span class="badge badge-premium"><i class="fa-solid fa-crown"></i> Premium Member</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button type="button" class="btn btn-primary" id="edit-mode-btn"><i class="fa-solid fa-user-pen"></i> Edit Profile</button>
+                </div>
+            </div>
+
+            <form id="profile-form" class="mt-4">
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <label><i class="fa-solid fa-user"></i> Full Name</label>
+                        <div class="field-value" id="val-fullname">Full Name</div>
+                        <input type="text" id="prof-fullname" class="edit-input" required>
+                    </div>
+                    <div class="detail-item">
+                        <label><i class="fa-solid fa-id-badge"></i> Username</label>
+                        <div class="field-value" id="val-username">@username</div>
+                        <input type="text" id="prof-username" class="edit-input" readonly>
+                    </div>
+                    <div class="detail-item">
+                        <label><i class="fa-solid fa-envelope"></i> Email Address</label>
+                        <div class="field-value" id="val-email">email@example.com</div>
+                        <input type="email" id="prof-email" class="edit-input" required>
+                    </div>
+                    <div class="detail-item">
+                        <label><i class="fa-solid fa-phone"></i> Phone Number</label>
+                        <div class="field-value" id="val-phone">+1 234 567 890</div>
+                        <input type="text" id="prof-phone" class="edit-input">
+                    </div>
+
+                    <div class="detail-item">
+                        <label><i class="fa-brands fa-linkedin"></i> LinkedIn</label>
+                        <div class="field-value" id="val-linkedin">Not set</div>
+                        <input type="url" id="prof-linkedin" class="edit-input" placeholder="https://linkedin.com/in/...">
+                    </div>
+                    <div class="detail-item">
+                        <label><i class="fa-brands fa-github"></i> GitHub</label>
+                        <div class="field-value" id="val-github">Not set</div>
+                        <input type="url" id="prof-github" class="edit-input" placeholder="https://github.com/...">
+                    </div>
+
+                    <div class="detail-item full-width">
+                        <label>Professional Summary</label>
+                        <div class="field-value" id="val-summary">Not set</div>
+                        <textarea id="prof-summary" class="edit-input" rows="4" placeholder="Write your professional summary..."></textarea>
+                    </div>
+                    <div class="detail-item full-width">
+                        <label>Skills (comma separated)</label>
+                        <div class="field-value" id="val-skills">Not set</div>
+                        <textarea id="prof-skills" class="edit-input" rows="3" placeholder="e.g., JavaScript, React, Python"></textarea>
+                    </div>
+                    <div class="detail-item full-width">
+                        <label>Work Experience</label>
+                        <div class="field-value" id="val-experience">Not set</div>
+                        <textarea id="prof-experience" class="edit-input" rows="6" placeholder="Describe your work experience..."></textarea>
+                    </div>
+                    <div class="detail-item full-width">
+                        <label>Education</label>
+                        <div class="field-value" id="val-education">Not set</div>
+                        <textarea id="prof-education" class="edit-input" rows="4" placeholder="Your educational background..."></textarea>
+                    </div>
+                    <div class="detail-item full-width">
+                        <label>Projects</label>
+                        <div class="field-value" id="val-projects">Not set</div>
+                        <textarea id="prof-projects" class="edit-input" rows="4" placeholder="Notable projects..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="edit-actions">
+                    <button type="submit" class="btn btn-primary" id="save-profile-btn"><i class="fa-solid fa-check"></i> Save Changes</button>
+                    <button type="button" class="btn btn-outline" id="cancel-edit-btn">Cancel</button>
+                </div>
+            </form>
+
+            <div class="profile-strength-section">
+                <div class="strength-header">
+                    <span>Profile Strength</span>
+                    <span id="completion-pct" class="font-bold neon-text-blue">0% Complete</span>
+                </div>
+                <div class="strength-bar">
+                    <div class="strength-fill" id="completion-fill" style="width: 0%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="account-controls">
+            <div class="profile-card danger-card premium-glass panel-glow">
+                <h3>Account Controls</h3>
+                <p class="text-muted text-sm">Security and session management settings.</p>
+                <div class="mt-3">
+                    <button type="button" class="btn btn-outline logout-btn-red" id="logout-btn"><i class="fa-solid fa-power-off"></i> Sign Out of Account</button>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script src="script.js"></script>
+<script>
+    // Safe converter for arrays or objects
+    function toText(val) {
+        if (!val) return '';
+        if (Array.isArray(val)) {
+            if (val.length === 0) return '';
+            // If array of objects (like experiences), join them nicely
+            if (typeof val[0] === 'object') {
+                return val.map(item => JSON.stringify(item)).join('\n\n');
+            }
+            return val.join(', ');
+        }
+        return val;
+    }
+
+    (async function() {
+        try {
+            const res = await fetch('/api/auth/user', { credentials: 'include' });
+            const data = await res.json();
+            if (!data.isLoggedIn) {
+                sessionStorage.setItem('redirectAfterLogin', window.location.pathname);
+                window.location.href = 'login.html';
+                return;
+            }
+            const user = data.user;
+            
+            // Populate display fields
+            document.getElementById('display-fullname').innerText = user.fullName || user.username;
+            document.getElementById('display-username').innerText = '@' + user.username;
+            
+            document.getElementById('val-fullname').innerText = user.fullName || 'Not set';
+            document.getElementById('val-email').innerText = user.email || 'Not set';
+            document.getElementById('val-username').innerText = '@' + user.username;
+            document.getElementById('val-phone').innerText = user.phone || 'Not set';
+            document.getElementById('val-linkedin').innerText = user.linkedin || 'Not set';
+            document.getElementById('val-github').innerText = user.github || 'Not set';
+            document.getElementById('val-summary').innerText = user.summary || 'Not set';
+            
+            // Use toText for array/string fields
+            document.getElementById('val-skills').innerText = toText(user.skills) || 'Not set';
+            document.getElementById('val-experience').innerText = toText(user.experience) || toText(user.experiences) || 'Not set';
+            document.getElementById('val-education').innerText = toText(user.education) || toText(user.educations) || 'Not set';
+            document.getElementById('val-projects').innerText = toText(user.projects) || 'Not set';
+            
+            // Populate input/textarea values
+            document.getElementById('prof-fullname').value = user.fullName || '';
+            document.getElementById('prof-email').value = user.email || '';
+            document.getElementById('prof-username').value = user.username || '';
+            document.getElementById('prof-phone').value = user.phone || '';
+            document.getElementById('prof-linkedin').value = user.linkedin || '';
+            document.getElementById('prof-github').value = user.github || '';
+            document.getElementById('prof-summary').value = user.summary || '';
+            document.getElementById('prof-skills').value = toText(user.skills) || '';
+            document.getElementById('prof-experience').value = toText(user.experience) || toText(user.experiences) || '';
+            document.getElementById('prof-education').value = toText(user.education) || toText(user.educations) || '';
+            document.getElementById('prof-projects').value = toText(user.projects) || '';
+            
+            if (user.profileImage) {
+                document.getElementById('main-profile-img').src = user.profileImage;
+                document.getElementById('side-profile-img').src = user.profileImage;
+            }
+            
+            // Profile strength (handle arrays correctly)
+            const fields = ['fullName', 'email', 'phone', 'profileImage', 'linkedin', 'github', 'summary', 'skills', 'experience', 'education', 'projects'];
+            let filled = fields.filter(f => {
+                let val = user[f];
+                if (Array.isArray(val)) return val.length > 0;
+                return val && val.trim();
+            }).length;
+            let pct = Math.round((filled / fields.length) * 100);
+            document.getElementById('completion-pct').innerText = pct + '% Complete';
+            document.getElementById('completion-fill').style.width = pct + '%';
+
+            // Edit mode
+            const editBtn = document.getElementById('edit-mode-btn');
+            const cancelBtn = document.getElementById('cancel-edit-btn');
+            const profileForm = document.getElementById('profile-form');
+            
+            editBtn.onclick = () => {
+                profileForm.classList.add('is-editing');
+                editBtn.style.display = 'none';
+            };
+            
+            cancelBtn.onclick = () => {
+                profileForm.classList.remove('is-editing');
+                editBtn.style.display = 'inline-block';
+                // Revert all fields to original user data
+                document.getElementById('prof-fullname').value = user.fullName || '';
+                document.getElementById('prof-email').value = user.email || '';
+                document.getElementById('prof-phone').value = user.phone || '';
+                document.getElementById('prof-linkedin').value = user.linkedin || '';
+                document.getElementById('prof-github').value = user.github || '';
+                document.getElementById('prof-summary').value = user.summary || '';
+                document.getElementById('prof-skills').value = toText(user.skills) || '';
+                document.getElementById('prof-experience').value = toText(user.experience) || toText(user.experiences) || '';
+                document.getElementById('prof-education').value = toText(user.education) || toText(user.educations) || '';
+                document.getElementById('prof-projects').value = toText(user.projects) || '';
+                document.getElementById('main-profile-img').src = user.profileImage || 'https://via.placeholder.com/150';
+            };
+            
+            profileForm.onsubmit = async (e) => {
+                e.preventDefault();
+                const updated = {
+                    fullName: document.getElementById('prof-fullname').value,
+                    email: document.getElementById('prof-email').value,
+                    phone: document.getElementById('prof-phone').value,
+                    linkedin: document.getElementById('prof-linkedin').value,
+                    github: document.getElementById('prof-github').value,
+                    summary: document.getElementById('prof-summary').value,
+                    skills: document.getElementById('prof-skills').value,
+                    experience: document.getElementById('prof-experience').value,
+                    education: document.getElementById('prof-education').value,
+                    projects: document.getElementById('prof-projects').value,
+                    profileImage: document.getElementById('main-profile-img').src
+                };
+                try {
+                    const resp = await fetch('/api/auth/update-profile', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify(updated)
+                    });
+                    if (resp.ok) {
+                        const result = await resp.json();
+                        Object.assign(user, result.user);
+                        alert('Profile updated!');
+                        cancelBtn.click();
+                        // Refresh displayed values
+                        document.getElementById('display-fullname').innerText = user.fullName || user.username;
+                        document.getElementById('val-fullname').innerText = user.fullName || 'Not set';
+                        document.getElementById('val-email').innerText = user.email || 'Not set';
+                        document.getElementById('val-phone').innerText = user.phone || 'Not set';
+                        document.getElementById('val-linkedin').innerText = user.linkedin || 'Not set';
+                        document.getElementById('val-github').innerText = user.github || 'Not set';
+                        document.getElementById('val-summary').innerText = user.summary || 'Not set';
+                        document.getElementById('val-skills').innerText = toText(user.skills) || 'Not set';
+                        document.getElementById('val-experience').innerText = toText(user.experience) || toText(user.experiences) || 'Not set';
+                        document.getElementById('val-education').innerText = toText(user.education) || toText(user.educations) || 'Not set';
+                        document.getElementById('val-projects').innerText = toText(user.projects) || 'Not set';
+                        
+                        let newFilled = fields.filter(f => {
+                            let val = user[f];
+                            if (Array.isArray(val)) return val.length > 0;
+                            return val && val.trim();
+                        }).length;
+                        let newPct = Math.round((newFilled / fields.length) * 100);
+                        document.getElementById('completion-pct').innerText = newPct + '% Complete';
+                        document.getElementById('completion-fill').style.width = newPct + '%';
+                    } else {
+                        alert('Update failed');
+                    }
+                } catch (err) {
+                    alert('Connection error');
+                }
+            };
+            
+            // Image upload
+            const fileInput = document.getElementById('profile-upload');
+            const imgError = document.getElementById('img-error');
+            fileInput.onchange = async function() {
+                const file = this.files[0];
+                if (!file) return;
+                if (!file.type.startsWith('image/')) {
+                    imgError.textContent = 'Only images allowed';
+                    imgError.style.display = 'block';
+                    return;
+                }
+                if (file.size > 2*1024*1024) {
+                    imgError.textContent = 'Max 2MB';
+                    imgError.style.display = 'block';
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    const base64 = e.target.result;
+                    document.getElementById('main-profile-img').src = base64;
+                    document.getElementById('side-profile-img').src = base64;
+                    try {
+                        const resp = await fetch('/api/auth/update-profile', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include',
+                            body: JSON.stringify({ profileImage: base64 })
+                        });
+                        if (resp.ok) {
+                            const result = await resp.json();
+                            Object.assign(user, result.user);
+                            imgError.textContent = 'Image updated!';
+                            imgError.style.color = '#00ff88';
+                            imgError.style.display = 'block';
+                            setTimeout(() => imgError.style.display = 'none', 2000);
+                            let newFilled = fields.filter(f => {
+                                let val = user[f];
+                                if (Array.isArray(val)) return val.length > 0;
+                                return val && val.trim();
+                            }).length;
+                            let newPct = Math.round((newFilled / fields.length) * 100);
+                            document.getElementById('completion-pct').innerText = newPct + '% Complete';
+                            document.getElementById('completion-fill').style.width = newPct + '%';
+                        } else {
+                            throw new Error();
+                        }
+                    } catch (err) {
+                        imgError.textContent = 'Image save failed';
+                        imgError.style.color = '#ff3366';
+                        imgError.style.display = 'block';
+                    }
+                };
+                reader.readAsDataURL(file);
+            };
+            
+            // Logout
+            document.getElementById('logout-btn').onclick = async () => {
+                await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+                window.location.href = 'login.html';
+            };
+            
+            // Sidebar user info
+            if (user.fullName) document.getElementById('side-username').innerText = user.fullName;
+            else if (user.username) document.getElementById('side-username').innerText = user.username;
+            
+        } catch (err) {
+            console.error(err);
+            window.location.href = 'login.html';
+        }
+    })();
+</script>
+</body>
+</html>

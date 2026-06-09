@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP | ATS Resume Builder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <!-- Prevent Caching -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+</head>
+<body id="login-page">
+    
+    <div class="bg-shapes">
+        <div class="shape shape-1" style="left: -10%; top: -10%;"></div>
+        <div class="shape shape-2" style="right: -5%; top: 30%;"></div>
+        <div class="shape shape-3" style="left: 20%; bottom: -20%;"></div>
+    </div>
+
+    <div class="login-wrapper">
+        <div class="login-card glass-panel tilt-card">
+            <div class="login-header">
+                <h2>Two-Step Verification</h2>
+                <p>We've sent a 6-digit code to <br><span class="gradient-text font-bold" id="user-email-mask">your email</span></p>
+            </div>
+            
+            <form id="verify-otp-form" class="form-container active" autocomplete="off">
+                <div class="otp-input-wrapper" style="display: flex; gap: 10px; justify-content: center; margin: 30px 0;">
+                    <div class="input-group" style="text-align: center;">
+                        <input type="text" id="otp-code" placeholder="000000" maxlength="6" 
+                               style="font-size: 2.5rem; text-align: center; letter-spacing: 8px; width: 100%; border: none; background: transparent; color: #fff; font-weight: 800;" required>
+                        <div class="glow-border"></div>
+                    </div>
+                </div>
+
+                <div class="error-msg" id="otp-error">
+                    <i class="fa-solid fa-circle-exclamation"></i> Invalid or expired code.
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 mt-2">Verify & Login</button>
+                
+                <div class="form-footer mt-4" style="text-align: center;">
+                    <p style="font-size: 0.9rem; color: #88a;">Didn't receive code? <a href="login.html" class="forgot-link">Back to Login</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const username = sessionStorage.getItem('pendingUser');
+            const emailMask = sessionStorage.getItem('emailMask');
+            
+            if (!username) {
+                window.location.replace('login.html');
+                return;
+            }
+
+            if (emailMask) {
+                document.getElementById('user-email-mask').textContent = emailMask;
+            }
+
+            const otpForm = document.getElementById('verify-otp-form');
+            const otpError = document.getElementById('otp-error');
+
+            otpForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const otp = document.getElementById('otp-code').value.trim();
+
+                try {
+                    const res = await fetch('/api/auth/verify-otp', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, otp })
+                    });
+
+                    if (res.ok) {
+                        sessionStorage.removeItem('pendingUser');
+                        sessionStorage.removeItem('emailMask');
+                        window.location.replace('dashboard.html');
+                    } else {
+                        const data = await res.json();
+                        otpError.textContent = '❌ ' + (data.error || 'Invalid code');
+                        otpError.classList.add('show');
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

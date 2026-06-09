@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login | ATS Resume Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<style>
+    .input-group.invalid input,
+    .input-group.invalid select {
+        border-color: #ff3366 !important;
+        box-shadow: 0 0 10px rgba(255, 51, 102, 0.2) !important;
+    }
+    .input-group.valid input,
+    .input-group.valid select {
+        border-color: #00ff88 !important;
+        box-shadow: 0 0 10px rgba(0, 255, 136, 0.2) !important;
+    }
+    .field-error-msg {
+        color: #ff3366;
+        font-size: 0.75rem;
+        margin-top: 4px;
+        margin-left: 5px;
+        display: block;
+        min-height: 1.2em;
+    }
+</style>
+</head>
+<body id="login-page">
+<div class="bg-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+</div>
+<div class="login-wrapper">
+<div class="login-card glass-panel tilt-card">
+<div class="login-header">
+    <h2>Welcome Back</h2>
+    <p>Access your <span class="gradient-text">Premium Account</span></p>
+</div>
+<div class="form-toggle">
+    <span id="tab-login" class="active">Login</span>
+    <span id="tab-register">Register</span>
+</div>
+
+<!-- LOGIN FORM -->
+<form id="login-form" class="form-container active" autocomplete="off">
+    <div class="input-group">
+        <i class="fa-solid fa-user input-icon"></i>
+        <input type="text" id="username" name="username" placeholder="Username or Email" required autocomplete="off">
+        <div class="glow-border"></div>
+    </div>
+    <div class="input-group">
+        <i class="fa-solid fa-lock input-icon"></i>
+        <input type="password" id="password" name="password" placeholder="Password" required autocomplete="new-password">
+        <div class="glow-border"></div>
+    </div>
+    <div class="error-msg" id="login-error"></div>
+    <div class="form-actions mt-4" style="display:flex; gap:10px;">
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+        <button type="button" id="clear-login" class="btn btn-outline">Clear</button>
+    </div>
+    <div style="text-align:center; margin-top:20px;">
+        <a href="forgot-password.html">Forgot Password?</a>
+    </div>
+</form>
+
+<!-- REGISTER FORM -->
+<form id="register-form" class="form-container" autocomplete="off">
+    <div class="input-group">
+        <input type="text" id="reg-fullname" name="reg_fullname" placeholder="Full Name" required maxlength="25">
+        <div class="glow-border"></div>
+    </div>
+    <div class="field-error-msg" id="err-reg-fullname"></div>
+
+    <div class="input-group">
+        <input type="email" id="reg-email" name="reg_email" placeholder="Email Address" required>
+        <div class="glow-border"></div>
+    </div>
+    <div class="field-error-msg" id="err-reg-email"></div>
+
+    <div class="input-group" style="display: flex; gap: 10px;">
+        <select id="reg-country-code" name="reg_country" style="width: 90px; background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 8px; outline: none; padding: 0 10px;">
+            <option value="+91" style="color: black">+91 (IN)</option>
+            <option value="+1" style="color: black">+1 (US)</option>
+            <option value="+44" style="color: black">+44 (UK)</option>
+            <option value="+61" style="color: black">+61 (AU)</option>
+        </select>
+        <div style="flex: 1; position: relative;" class="input-group-inner">
+            <input type="text" id="reg-phone" name="reg_phone" placeholder="Phone Number" required maxlength="10" style="width: 100%; border-bottom: none;">
+            <div class="glow-border"></div>
+        </div>
+    </div>
+    <div class="field-error-msg" id="err-reg-phone"></div>
+
+    <div class="input-group">
+        <input type="text" id="reg-username" name="reg_username" placeholder="Username" required>
+        <div class="glow-border"></div>
+    </div>
+    <div class="field-error-msg" id="err-reg-username"></div>
+
+    <div class="input-group">
+        <input type="password" id="reg-password" name="reg_password" placeholder="Password" required>
+        <div class="glow-border"></div>
+    </div>
+    <div class="field-error-msg" id="err-reg-password"></div>
+
+    <div class="input-group">
+        <input type="url" id="reg-linkedin" name="reg_linkedin" placeholder="LinkedIn Profile URL (optional)">
+        <div class="glow-border"></div>
+    </div>
+    <div class="field-error-msg" id="err-reg-linkedin"></div>
+
+    <div class="input-group">
+        <input type="url" id="reg-github" name="reg_github" placeholder="GitHub Profile URL (optional)">
+        <div class="glow-border"></div>
+    </div>
+    <div class="field-error-msg" id="err-reg-github"></div>
+
+    <div class="error-msg" id="reg-error"></div>
+    <div class="success-msg" id="reg-success"></div>
+    <div class="form-actions mt-4" style="display:flex; gap:10px;">
+        <button type="submit" id="reg-submit-btn" class="btn btn-primary w-100">Register</button>
+        <button type="button" id="clear-reg" class="btn btn-outline">Clear</button>
+    </div>
+</form>
+</div>
+</div>
+
+<script>
+    // Aggressive clearing function
+    function clearAllInputs() {
+        const allInputs = document.querySelectorAll('input, textarea, select');
+        allInputs.forEach(el => {
+            if (el.tagName === 'SELECT') {
+                el.selectedIndex = 0;
+            } else {
+                el.value = '';
+            }
+        });
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        if (loginForm) loginForm.reset();
+        if (registerForm) registerForm.reset();
+    }
+
+    clearAllInputs();
+
+    document.addEventListener('DOMContentLoaded', function() {
+        clearAllInputs();
+        setTimeout(clearAllInputs, 100);
+        setTimeout(clearAllInputs, 500);
+    });
+
+    window.addEventListener('load', function() {
+        clearAllInputs();
+        setTimeout(clearAllInputs, 200);
+    });
+
+    if (window.location.search.includes('logout=true')) {
+        sessionStorage.clear();
+        localStorage.removeItem('currentUser');
+        clearAllInputs();
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+    }
+
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
+            clearAllInputs();
+            setTimeout(clearAllInputs, 50);
+        }
+    });
+
+    // ========== IMPROVED REDIRECT HANDLING ==========
+    // First, try to get redirect from URL parameter (?redirect=/profile.html)
+    function getRedirectTarget() {
+        const urlParams = new URLSearchParams(window.location.search);
+        let redirect = urlParams.get('redirect');
+        if (redirect) {
+            // Remove it from URL without reloading (clean)
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+            return decodeURIComponent(redirect);
+        }
+        // Fallback to sessionStorage (for backward compatibility)
+        const stored = sessionStorage.getItem('redirectAfterLogin');
+        if (stored) sessionStorage.removeItem('redirectAfterLogin');
+        return stored;
+    }
+
+    function handleRedirectAfterAuth() {
+        const target = getRedirectTarget();
+        console.log('Redirecting to:', target || 'dashboard.html'); // Debug log
+        window.location.href = target || 'dashboard.html';
+    }
+
+    // --- LOGIN SUBMISSION ---
+    const loginForm = document.getElementById('login-form');
+    const loginError = document.getElementById('login-error');
+
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+
+        loginError.textContent = '';
+
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ username, password })
+            });
+            const data = await res.json();
+            if (data.success) {
+                handleRedirectAfterAuth();
+            } else {
+                loginError.textContent = data.message || 'Login failed';
+            }
+        } catch (err) {
+            loginError.textContent = 'Network error. Please try again.';
+        }
+    });
+
+    // --- REGISTRATION SUBMISSION ---
+    const registerForm = document.getElementById('register-form');
+    const regError = document.getElementById('reg-error');
+    const regSuccess = document.getElementById('reg-success');
+
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        regError.textContent = '';
+        regSuccess.textContent = '';
+
+        const fullName = document.getElementById('reg-fullname').value.trim();
+        const email = document.getElementById('reg-email').value.trim();
+        const countryCode = document.getElementById('reg-country-code').value;
+        const phone = document.getElementById('reg-phone').value.trim();
+        const username = document.getElementById('reg-username').value.trim();
+        const password = document.getElementById('reg-password').value;
+        const linkedin = document.getElementById('reg-linkedin').value.trim();
+        const github = document.getElementById('reg-github').value.trim();
+
+        if (!fullName || !email || !phone || !username || !password) {
+            regError.textContent = 'Please fill all required fields.';
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({
+                    fullName,
+                    email,
+                    phone: countryCode + phone,
+                    username,
+                    password,
+                    linkedin,
+                    github
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                regSuccess.textContent = 'Registration successful! Redirecting...';
+                setTimeout(() => {
+                    handleRedirectAfterAuth();
+                }, 1500);
+            } else {
+                regError.textContent = data.message || 'Registration failed';
+            }
+        } catch (err) {
+            regError.textContent = 'Network error. Please try again.';
+        }
+    });
+
+    // Clear buttons
+    document.getElementById('clear-login').addEventListener('click', () => {
+        document.getElementById('username').value = '';
+        document.getElementById('password').value = '';
+        loginError.textContent = '';
+    });
+    document.getElementById('clear-reg').addEventListener('click', () => {
+        registerForm.reset();
+        regError.textContent = '';
+        regSuccess.textContent = '';
+        document.querySelectorAll('.field-error-msg').forEach(el => el.textContent = '');
+    });
+
+    // Tab switching
+    const tabLogin = document.getElementById('tab-login');
+    const tabRegister = document.getElementById('tab-register');
+    const loginFormContainer = document.getElementById('login-form');
+    const registerFormContainer = document.getElementById('register-form');
+
+    tabLogin.addEventListener('click', () => {
+        tabLogin.classList.add('active');
+        tabRegister.classList.remove('active');
+        loginFormContainer.classList.add('active');
+        registerFormContainer.classList.remove('active');
+        clearAllInputs();
+    });
+    tabRegister.addEventListener('click', () => {
+        tabRegister.classList.add('active');
+        tabLogin.classList.remove('active');
+        registerFormContainer.classList.add('active');
+        loginFormContainer.classList.remove('active');
+        clearAllInputs();
+    });
+</script>
+
+<script src="script.js"></script>
+</body>
+</html>

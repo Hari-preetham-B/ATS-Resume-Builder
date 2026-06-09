@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Applications | ATS Resume Builder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <style>
+        .applications-container { padding: 20px; }
+        .app-card { background: rgba(20,25,60,0.4); backdrop-filter: blur(20px); border: 1px solid rgba(100,150,255,0.15); border-radius: 16px; padding: 20px; margin-bottom: 20px; transition: transform 0.2s; }
+        .app-card:hover { transform: translateY(-3px); }
+        .app-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px; }
+        .app-title { font-size: 1.2rem; font-weight: 600; color: #4df; }
+        .app-company { font-size: 0.9rem; color: #88a; }
+        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+        .status-Applied { background: rgba(255,193,7,0.2); color: #ffc107; }
+        .status-Interview { background: rgba(13,110,253,0.2); color: #0d6efd; }
+        .status-Offer { background: rgba(25,135,84,0.2); color: #198754; }
+        .status-Rejected { background: rgba(220,53,69,0.2); color: #dc3545; }
+        .app-actions button { background: none; border: none; cursor: pointer; margin-left: 8px; color: #88a; }
+        .app-actions button:hover { color: #4df; }
+        .delete-btn:hover { color: #ff3366 !important; }
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index:2000; }
+        .modal-content { background: #0f0c29; border-radius: 20px; padding: 30px; width: 600px; max-width: 90%; max-height: 80vh; overflow-y: auto; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; color: #4df; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 12px; color: white; }
+        .btn-primary { background: linear-gradient(135deg,#4df,#a2f); border: none; color: white; padding: 8px 16px; border-radius: 8px; cursor: pointer; }
+        .btn-secondary { background: rgba(255,255,255,0.1); border: none; color: white; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-left: 10px; }
+        .resume-select { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px; color: white; width: 100%; }
+        .empty-state { text-align: center; padding: 50px; color: #88a; }
+        .cover-letter-content { white-space: pre-wrap; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; margin: 15px 0; font-size: 0.9rem; line-height: 1.5; max-height: 400px; overflow-y: auto; }
+    </style>
+</head>
+<body id="applications-page" class="layout-app">
+
+<div class="bg-shapes" style="opacity: 0.6;">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+</div>
+
+<aside class="sidebar premium-glass panel-glow">
+    <div class="sidebar-header">
+        <span class="logo-icon"><i class="fa-solid fa-file-contract neon-text-blue"></i></span>
+        <span class="logo-text font-bold text-white">Resume<span class="neon-text-blue">Pro</span></span>
+    </div>
+    <div class="sidebar-profile">
+        <div class="profile-img-container">
+            <img src="https://via.placeholder.com/150" alt="Profile" id="side-profile-img">
+        </div>
+        <div class="profile-info">
+            <h4 id="side-username">User Name</h4>
+            <p>Premium Member</p>
+        </div>
+    </div>
+    <ul class="sidebar-menu">
+        <li><a href="dashboard.html"><i class="fa-solid fa-house"></i> Dashboard</a></li>
+        <li><a href="builder.html"><i class="fa-solid fa-file-signature"></i> Create Resume</a></li>
+        <li><a href="my-resumes.html"><i class="fa-solid fa-folder-open"></i> My Resumes</a></li>
+        <li><a href="applications.html" class="active"><i class="fa-solid fa-briefcase"></i> Job Applications</a></li>
+        <li><a href="templates.html"><i class="fa-solid fa-layer-group"></i> ATS Templates</a></li>
+        <li><a href="ai-assistant.html"><i class="fa-solid fa-robot"></i> AI Assistant</a></li>
+    </ul>
+</aside>
+
+<main class="main-content">
+    <header class="topbar">
+        <div>
+            <h2 class="neon-text-blue">Job Applications</h2>
+            <p class="text-muted text-sm">Track your job applications – add, edit, update status.</p>
+        </div>
+        <div>
+            <button id="add-app-btn" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add Application</button>
+        </div>
+    </header>
+
+    <div id="apps-container" class="applications-container">
+        <div class="empty-state">Loading applications...</div>
+    </div>
+</main>
+
+<!-- Add/Edit Modal -->
+<div id="app-modal" class="modal">
+    <div class="modal-content">
+        <h3 id="modal-title" style="color:#4df; margin-bottom:20px;">Add Application</h3>
+        <form id="app-form">
+            <input type="hidden" id="app-id">
+            <div class="form-group"><label>Job Title *</label><input type="text" id="job-title" required></div>
+            <div class="form-group"><label>Company *</label><input type="text" id="company" required></div>
+            <div class="form-group"><label>Location</label><input type="text" id="location"></div>
+            <div class="form-group"><label>Status</label><select id="status"><option>Applied</option><option>Interview</option><option>Offer</option><option>Rejected</option></select></div>
+            <div class="form-group"><label>Date Applied</label><input type="date" id="date-applied"></div>
+            <div class="form-group"><label>Linked Resume (optional)</label><select id="resume-id" class="resume-select"><option value="">None</option></select></div>
+            <div class="form-group"><label>Notes</label><textarea id="notes" rows="3"></textarea></div>
+            <div style="text-align:right;"><button type="button" class="btn-secondary" id="modal-close">Cancel</button><button type="submit" class="btn-primary">Save</button></div>
+        </form>
+    </div>
+</div>
+
+<!-- Cover Letter Modal -->
+<div id="coverletter-modal" class="modal">
+    <div class="modal-content">
+        <h3 style="color:#4df;">📝 AI Generated Cover Letter</h3>
+        <div id="coverletter-content" class="cover-letter-content">Generating...</div>
+        <div style="text-align:right; margin-top:20px;">
+            <button id="copy-coverletter" class="btn-secondary"><i class="fa-regular fa-copy"></i> Copy</button>
+            <button id="save-as-note" class="btn-primary"><i class="fa-regular fa-save"></i> Save as Note</button>
+            <button id="close-coverletter" class="btn-secondary">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentEditId = null;
+    let resumesList = [];
+    let currentCoverLetter = '';
+    let currentApplication = null;
+
+    async function loadResumes() {
+        try {
+            const res = await fetch('/api/resume/list', { credentials: 'include' });
+            if (res.ok) {
+                resumesList = await res.json();
+                const select = document.getElementById('resume-id');
+                select.innerHTML = '<option value="">None</option>';
+                resumesList.forEach(r => {
+                    const option = document.createElement('option');
+                    option.value = r.id;
+                    option.textContent = r.title;
+                    select.appendChild(option);
+                });
+            }
+        } catch (err) { console.error('Failed to load resumes', err); }
+    }
+
+    async function loadApplications() {
+        try {
+            const res = await fetch('/api/applications/', { credentials: 'include' });
+            if (!res.ok) throw new Error('Failed to fetch');
+            const apps = await res.json();
+            const container = document.getElementById('apps-container');
+            if (apps.length === 0) {
+                container.innerHTML = '<div class="empty-state">No applications yet. Click "Add Application" to start tracking.</div>';
+                return;
+            }
+            container.innerHTML = '';
+            apps.forEach(app => {
+                const card = document.createElement('div');
+                card.className = 'app-card';
+                card.innerHTML = `
+                    <div class="app-header">
+                        <div>
+                            <div class="app-title">${escapeHtml(app.job_title)}</div>
+                            <div class="app-company">${escapeHtml(app.company)}${app.location ? ' · ' + escapeHtml(app.location) : ''}</div>
+                        </div>
+                        <div class="app-actions">
+                            <span class="status-badge status-${app.status}">${escapeHtml(app.status)}</span>
+                            <button class="generate-cover" data-id="${app.id}" title="Generate Cover Letter"><i class="fa-regular fa-envelope"></i></button>
+                            <button class="edit-app" data-id="${app.id}" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                            <button class="delete-app" data-id="${app.id}" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                    <div style="font-size:0.85rem; margin-top:8px;">
+                        ${app.date_applied ? `<i class="fa-regular fa-calendar"></i> Applied: ${new Date(app.date_applied).toLocaleDateString()}` : ''}
+                        ${app.resume_id ? `<span style="margin-left:15px;"><i class="fa-regular fa-file"></i> Resume: ${getResumeTitle(app.resume_id)}</span>` : ''}
+                    </div>
+                    ${app.notes ? `<div style="margin-top:10px; color:#aaa;"><i class="fa-regular fa-note-sticky"></i> ${escapeHtml(app.notes)}</div>` : ''}
+                `;
+                container.appendChild(card);
+            });
+            document.querySelectorAll('.edit-app').forEach(btn => btn.addEventListener('click', () => editApplication(btn.dataset.id)));
+            document.querySelectorAll('.delete-app').forEach(btn => btn.addEventListener('click', () => deleteApplication(btn.dataset.id)));
+            document.querySelectorAll('.generate-cover').forEach(btn => btn.addEventListener('click', () => generateCoverLetter(btn.dataset.id)));
+        } catch (err) {
+            console.error(err);
+            document.getElementById('apps-container').innerHTML = '<div class="empty-state">Error loading applications. Please refresh.</div>';
+        }
+    }
+
+    function getResumeTitle(resumeId) {
+        const resume = resumesList.find(r => r.id === resumeId);
+        return resume ? resume.title : 'Unknown';
+    }
+
+    async function generateCoverLetter(appId) {
+        try {
+            // fetch application details
+            const appRes = await fetch(`/api/applications/${appId}`, { credentials: 'include' });
+            if (!appRes.ok) throw new Error('App not found');
+            const app = await appRes.json();
+            currentApplication = app;
+
+            // Get user profile (for personal details)
+            const userRes = await fetch('/api/auth/user', { credentials: 'include' });
+            const userData = await userRes.json();
+            const user = userData.user || {};
+
+            // Build user info string (only include fields that exist)
+            const userInfo = `
+Full Name: ${user.fullName || ''}
+Email: ${user.email || ''}
+Phone: ${user.phone || ''}
+LinkedIn: ${user.linkedin || ''}
+GitHub: ${user.github || ''}
+`.trim();
+
+            // Get resume content if linked
+            let resumeContent = '';
+            if (app.resume_id) {
+                const resumeRes = await fetch(`/api/resume/${app.resume_id}`, { credentials: 'include' });
+                if (resumeRes.ok) {
+                    const resumeData = await resumeRes.json();
+                    resumeContent = JSON.stringify(resumeData.data, null, 2);
+                }
+            } else {
+                // fallback: use user's profile summary/skills
+                if (user.summary || user.skills) {
+                    resumeContent = `Summary: ${user.summary || ''}\nSkills: ${user.skills || ''}`;
+                }
+            }
+
+            // Build the prompt for AI
+            const prompt = `Write a professional, enthusiastic cover letter for the position of "${app.job_title}" at "${app.company}". Use the following resume information as the applicant's background:
+
+Resume: ${resumeContent}
+
+Personal details:
+${userInfo}
+
+Instructions:
+- Do NOT use placeholders like [Your Address], [City, State, Zip], or [Date]. 
+- If any personal detail is missing, simply omit that line.
+- Use the real name, email, phone, LinkedIn, GitHub from the personal details.
+- Write in first person. Keep it concise (about 300 words). Use standard business letter format.
+- The letter should be ready to send – no brackets or placeholders.`;
+
+            document.getElementById('coverletter-modal').style.display = 'flex';
+            document.getElementById('coverletter-content').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating cover letter...';
+
+            const aiRes = await fetch('/api/ai/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ userMessage: prompt, resumeContent: '' })
+            });
+            const aiData = await aiRes.json();
+            const coverLetter = aiData.response || 'Sorry, could not generate cover letter.';
+            currentCoverLetter = coverLetter;
+            document.getElementById('coverletter-content').innerHTML = coverLetter.replace(/\n/g, '<br>');
+        } catch (err) {
+            console.error(err);
+            document.getElementById('coverletter-content').innerHTML = 'Error generating cover letter. Please try again.';
+        }
+    }
+
+    document.getElementById('copy-coverletter').addEventListener('click', () => {
+        navigator.clipboard.writeText(currentCoverLetter);
+        alert('Cover letter copied to clipboard!');
+    });
+
+    document.getElementById('save-as-note').addEventListener('click', async () => {
+        if (!currentApplication) return;
+        const newNotes = (currentApplication.notes ? currentApplication.notes + '\n\n--- Generated Cover Letter ---\n' : '') + currentCoverLetter;
+        try {
+            const res = await fetch(`/api/applications/${currentApplication.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ ...currentApplication, notes: newNotes })
+            });
+            if (res.ok) {
+                alert('Cover letter saved to notes!');
+                document.getElementById('coverletter-modal').style.display = 'none';
+                loadApplications();
+            } else {
+                alert('Failed to save note');
+            }
+        } catch (err) {
+            alert('Error saving note');
+        }
+    });
+
+    document.getElementById('close-coverletter').addEventListener('click', () => {
+        document.getElementById('coverletter-modal').style.display = 'none';
+    });
+
+    async function editApplication(id) {
+        try {
+            const res = await fetch(`/api/applications/${id}`, { credentials: 'include' });
+            if (!res.ok) throw new Error();
+            const app = await res.json();
+            document.getElementById('app-id').value = app.id;
+            document.getElementById('job-title').value = app.job_title;
+            document.getElementById('company').value = app.company;
+            document.getElementById('location').value = app.location || '';
+            document.getElementById('status').value = app.status;
+            document.getElementById('date-applied').value = app.date_applied ? app.date_applied.split('T')[0] : '';
+            document.getElementById('resume-id').value = app.resume_id || '';
+            document.getElementById('notes').value = app.notes || '';
+            document.getElementById('modal-title').innerText = 'Edit Application';
+            document.getElementById('app-modal').style.display = 'flex';
+            currentEditId = id;
+        } catch (err) { alert('Could not load application details'); }
+    }
+
+    async function deleteApplication(id) {
+        if (!confirm('Delete this application?')) return;
+        try {
+            await fetch(`/api/applications/${id}`, { method: 'DELETE', credentials: 'include' });
+            loadApplications();
+        } catch (err) { alert('Delete failed'); }
+    }
+
+    document.getElementById('add-app-btn').addEventListener('click', () => {
+        document.getElementById('app-id').value = '';
+        document.getElementById('job-title').value = '';
+        document.getElementById('company').value = '';
+        document.getElementById('location').value = '';
+        document.getElementById('status').value = 'Applied';
+        document.getElementById('date-applied').value = new Date().toISOString().split('T')[0];
+        document.getElementById('resume-id').value = '';
+        document.getElementById('notes').value = '';
+        document.getElementById('modal-title').innerText = 'Add Application';
+        document.getElementById('app-modal').style.display = 'flex';
+        currentEditId = null;
+    });
+
+    document.getElementById('modal-close').addEventListener('click', () => { document.getElementById('app-modal').style.display = 'none'; });
+    window.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('app-modal')) document.getElementById('app-modal').style.display = 'none';
+        if (e.target === document.getElementById('coverletter-modal')) document.getElementById('coverletter-modal').style.display = 'none';
+    });
+
+    document.getElementById('app-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+            job_title: document.getElementById('job-title').value,
+            company: document.getElementById('company').value,
+            location: document.getElementById('location').value,
+            status: document.getElementById('status').value,
+            date_applied: document.getElementById('date-applied').value,
+            resume_id: document.getElementById('resume-id').value,
+            notes: document.getElementById('notes').value
+        };
+        const method = currentEditId ? 'PUT' : 'POST';
+        const url = currentEditId ? `/api/applications/${currentEditId}` : '/api/applications/';
+        try {
+            const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(payload) });
+            if (res.ok) {
+                document.getElementById('app-modal').style.display = 'none';
+                loadApplications();
+            } else {
+                const err = await res.json();
+                alert(err.error || 'Save failed');
+            }
+        } catch (err) { alert('Network error'); }
+    });
+
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m==='&'?'&amp;':m==='<'?'&lt;':'&gt;'); }
+
+    fetch('/api/auth/user', { credentials: 'include' })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.isLoggedIn) window.location.href = 'login.html';
+            else {
+                document.getElementById('side-username').textContent = data.user.fullName || data.user.username;
+                loadResumes().then(() => loadApplications());
+            }
+        })
+        .catch(() => window.location.href = 'login.html');
+</script>
+</body>
+</html>

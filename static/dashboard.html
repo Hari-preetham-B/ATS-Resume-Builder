@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | ATS Resume Builder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <style>
+        /* Additional styles for template gallery on dashboard */
+        .template-gallery {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            padding: 10px;
+        }
+        .template-item {
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .template-item:hover {
+            transform: translateY(-3px);
+            background: rgba(255,255,255,0.1);
+        }
+        .template-mock {
+            background: white;
+            height: 120px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        .template-mock.classic-mock {
+            text-align: center;
+            padding: 10px;
+        }
+        .template-mock.modern-mock {
+            display: flex;
+        }
+        .template-mock.student-mock {
+            background: white;
+        }
+        .template-mock.developer-mock {
+            background: #1e1e1e;
+            color: white;
+            font-family: monospace;
+            padding: 8px;
+        }
+        .btn-xxs {
+            padding: 4px 8px;
+            font-size: 0.7rem;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            background: rgba(0,150,255,0.2);
+            color: #4df;
+            border: 1px solid rgba(0,150,255,0.4);
+        }
+        .btn-xxs:hover {
+            background: rgba(0,150,255,0.4);
+        }
+        /* AI Chat Sidebar Styles (kept as is) */
+        .ai-chat-section {
+            margin-top: auto;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            margin: 10px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        .ai-chat-header {
+            padding: 12px 15px;
+            background: rgba(68, 221, 255, 0.1);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .ai-chat-header h4 {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #4df;
+        }
+        .ai-chat-body {
+            max-height: 300px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            gap: 8px;
+            background: rgba(0,0,0,0.3);
+        }
+        .ai-message {
+            font-size: 0.8rem;
+            padding: 8px 10px;
+            border-radius: 12px;
+            max-width: 90%;
+            word-wrap: break-word;
+        }
+        .ai-message.user {
+            align-self: flex-end;
+            background: #4df;
+            color: #000;
+        }
+        .ai-message.bot {
+            align-self: flex-start;
+            background: rgba(255,255,255,0.1);
+            color: #eee;
+        }
+        .ai-chat-input-area {
+            display: flex;
+            padding: 10px;
+            gap: 8px;
+            background: rgba(0,0,0,0.2);
+        }
+        .ai-chat-input-area input {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 8px 12px;
+            color: white;
+            font-size: 0.8rem;
+        }
+        .ai-chat-input-area button {
+            background: #4df;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            color: black;
+            cursor: pointer;
+        }
+        .voice-btn-chat {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            color: #4df;
+            cursor: pointer;
+        }
+        .voice-btn-chat.recording {
+            background: #ff3366;
+            color: white;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            70% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+        .save-chat-btn {
+            background: rgba(255,255,255,0.05);
+            border: none;
+            border-radius: 8px;
+            padding: 4px 8px;
+            font-size: 0.7rem;
+            color: #88a;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body id="dashboard-page" class="layout-app">
+
+<div class="bg-shapes" style="opacity: 0.6;">
+    <div class="shape shape-1" style="width: 30vw; height: 30vw; background: rgba(0, 150, 255, 0.4);"></div>
+    <div class="shape shape-2" style="width: 25vw; height: 25vw; right: -5%; top: 20%; background: rgba(255, 0, 127, 0.3);"></div>
+    <div class="shape shape-3" style="width: 40vw; height: 40vw; left: 10%; bottom: -10%; background: rgba(138, 43, 226, 0.4);"></div>
+</div>
+
+<aside class="sidebar premium-glass panel-glow">
+    <div class="sidebar-header">
+        <span class="logo-icon"><i class="fa-solid fa-file-contract neon-text-blue"></i></span>
+        <span class="logo-text font-bold text-white">Resume<span class="neon-text-blue">Pro</span></span>
+    </div>
+    <div class="sidebar-profile" id="sidebar-profile">
+        <div class="profile-img-container">
+            <img src="https://via.placeholder.com/150" alt="Profile" id="side-profile-img">
+        </div>
+        <div class="profile-info">
+            <h4 id="side-username">User Name</h4>
+            <p>Premium Member</p>
+        </div>
+    </div>
+    <ul class="sidebar-menu">
+        <li><a href="dashboard.html" class="active"><i class="fa-solid fa-house"></i> Dashboard</a></li>
+        <li><a href="builder.html"><i class="fa-solid fa-file-signature"></i> Create Resume</a></li>
+        <li><a href="my-resumes.html"><i class="fa-solid fa-folder-open"></i> My Resumes</a></li>
+        <li><a href="templates.html"><i class="fa-solid fa-layer-group"></i> ATS Templates</a></li>
+        <li><a href="ai-assistant.html"><i class="fa-solid fa-robot"></i> AI Assistant</a></li>
+        <li><a href="applications.html"><i class="fa-solid fa-briefcase"></i> Job Applications</a></li>
+        <li><a href="resume_gallery.html"><i class="fa-regular fa-images"></i> Resume Gallery</a></li>
+        <li><a href="mock-interview.html"><i class="fa-solid fa-video"></i> Mock Interview</a></li>
+    </ul>
+
+    <!-- AI Chat Section (collapsible) - kept as is -->
+    <div class="ai-chat-section">
+        <div class="ai-chat-header" id="ai-chat-toggle">
+            <h4><i class="fa-solid fa-robot"></i> AI Assistant</h4>
+            <i class="fa-solid fa-chevron-down" id="ai-chat-icon"></i>
+        </div>
+        <div id="ai-chat-content" style="display: none;">
+            <div class="ai-chat-body" id="ai-chat-messages">
+                <div class="ai-message bot">👋 Hi! I'm your AI career assistant. Ask me anything about resumes, interviews, or ATS optimization. You can use voice input 🎤</div>
+            </div>
+            <div class="ai-chat-input-area">
+                <input type="text" id="ai-chat-input" placeholder="Type or click mic to speak...">
+                <button id="ai-chat-send"><i class="fa-solid fa-paper-plane"></i></button>
+                <button id="ai-voice-btn" class="voice-btn-chat" title="Speak"><i class="fa-solid fa-microphone"></i></button>
+                <button id="ai-save-chat" class="save-chat-btn" title="Save conversation"><i class="fa-solid fa-download"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar-footer">
+        <!-- Logout link is inside script.js -->
+    </div>
+</aside>
+
+<main class="main-content">
+    <header class="topbar">
+        <div class="user-greeting">
+            <p class="text-muted reveal text-sm">Welcome Back, User!</p>
+            <h2 class="reveal neon-text-blue" style="font-size: 2rem;">Resume Builder Dashboard</h2>
+        </div>
+        <div class="topbar-actions reveal">
+            <div class="theme-toggle">
+                <button id="theme-switch" title="Toggle Dark/Light Mode"><i class="fa-solid fa-sun"></i></button>
+            </div>
+            <div class="premium-glass icon-btn"><i class="fa-solid fa-bell"></i></div>
+            <div class="premium-glass icon-btn" id="settings-btn" title="Settings"><i class="fa-solid fa-gear"></i></div>
+            <div class="premium-glass icon-btn" id="topbar-profile-btn" title="Profile"><i class="fa-solid fa-user"></i></div>
+        </div>
+    </header>
+
+    <section class="metrics-grid mt-4">
+        <div class="metric-card premium-glass panel-glow hover-lift reveal" style="transition-delay: 0.1s;">
+            <div class="metric-icon"><i class="fa-solid fa-file-lines"></i></div>
+            <div class="metric-info">
+                <h3>Resumes Created</h3>
+                <h2 id="stat-resumes">0</h2>
+            </div>
+        </div>
+        <div class="metric-card premium-glass panel-glow hover-lift reveal" style="transition-delay: 0.2s;">
+            <div class="metric-icon"><i class="fa-solid fa-download"></i></div>
+            <div class="metric-info">
+                <h3>Downloads</h3>
+                <h2 id="stat-downloads">0</h2>
+            </div>
+        </div>
+        <div class="metric-card premium-glass panel-glow hover-lift reveal" style="transition-delay: 0.3s;">
+            <div class="metric-icon"><i class="fa-solid fa-eye"></i></div>
+            <div class="metric-info">
+                <h3>Profile Views</h3>
+                <h2 id="stat-views">0</h2>
+            </div>
+        </div>
+        <div class="metric-card premium-glass panel-glow hover-lift reveal" style="transition-delay: 0.4s;">
+            <div class="metric-icon"><i class="fa-solid fa-chart-line"></i></div>
+            <div class="metric-info">
+                <h3>ATS Score Average</h3>
+                <h2 id="stat-ats-avg">0/100</h2>
+            </div>
+        </div>
+    </section>
+
+    <section class="dashboard-bento mt-4">
+        <div class="dash-section premium-glass panel-glow reveal bento-progress">
+            <div class="section-header">
+                <h3>Resume Creation Progress</h3>
+                <i class="fa-solid fa-ellipsis"></i>
+            </div>
+            <div class="progress-display">
+                <div class="progress-circle-wrap">
+                    <svg viewBox="0 0 36 36" class="circular-chart neon-blue">
+                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="circle" id="dash-progress-circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <text x="18" y="17" class="percentage" id="dash-progress-pct">0%</text>
+                        <text x="18" y="24" class="progress-text" id="dash-progress-status">Not Started</text>
+                    </svg>
+                </div>
+            </div>
+            <div class="checklist">
+                <div class="check-item checked">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>Complete Your Resume</span>
+                    <i class="fa-solid fa-xmark close-icon"></i>
+                </div>
+                <div class="check-item sub-item checked">
+                    <i class="fa-solid fa-check text-success"></i> <span>Personal Info</span>
+                </div>
+                <div class="check-item sub-item checked">
+                    <i class="fa-solid fa-check text-success"></i> <span>Skills</span>
+                </div>
+                <div class="check-item sub-item">
+                    <i class="fa-regular fa-square"></i> <span>Experience</span>
+                </div>
+                <div class="check-item sub-item">
+                    <i class="fa-regular fa-square"></i> <span>Education</span>
+                </div>
+            </div>
+            <div class="glow-bar-bottom"></div>
+        </div>
+
+        <div class="dash-section premium-glass panel-glow reveal bento-recent">
+            <div class="section-header">
+                <h3>Recent Resumes</h3>
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+            <div class="recent-resume-cards" id="recent-resumes-container">
+                <div style="color: #88a; text-align: center; padding: 20px;">Loading resumes...</div>
+            </div>
+        </div>
+
+        <!-- Popular Templates Section - Updated with proper template previews -->
+        <div class="dash-section premium-glass panel-glow reveal bento-templates">
+            <div class="section-header">
+                <h3>Popular Templates</h3>
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+            <div class="template-gallery">
+                <!-- Classic Template -->
+                <div class="template-item" data-template="classic">
+                    <div class="template-mock classic-mock">
+                        <div style="text-align: center; padding: 10px;">
+                            <div style="height: 8px; background: #333; width: 60%; margin: 0 auto;"></div>
+                            <div style="height: 4px; background: #999; width: 80%; margin: 5px auto;"></div>
+                        </div>
+                        <div style="padding: 5px;">
+                            <div style="height: 4px; background: #ccc; width: 40%;"></div>
+                            <div style="height: 3px; background: #eee; margin-top: 4px;"></div>
+                        </div>
+                    </div>
+                    <h4 style="color: white; font-size: 0.9rem; margin: 8px 0 4px;">Classic ATS</h4>
+                    <p style="color: #88a; font-size: 0.7rem;">Clean single-column layout</p>
+                    <button class="btn-xxs use-template-btn">Use Template</button>
+                </div>
+                <!-- Modern Template -->
+                <div class="template-item" data-template="modern">
+                    <div class="template-mock modern-mock" style="display: flex;">
+                        <div style="width: 35%; background: #2c3e50;"></div>
+                        <div style="width: 65%; padding: 5px;">
+                            <div style="height: 5px; background: #333; width: 80%;"></div>
+                            <div style="height: 3px; background: #ccc; margin-top: 5px;"></div>
+                        </div>
+                    </div>
+                    <h4 style="color: white; font-size: 0.9rem; margin: 8px 0 4px;">Modern ATS</h4>
+                    <p style="color: #88a; font-size: 0.7rem;">Professional two-column layout</p>
+                    <button class="btn-xxs use-template-btn">Use Template</button>
+                </div>
+                <!-- Student Template -->
+                <div class="template-item" data-template="student">
+                    <div class="template-mock student-mock">
+                        <div style="background: #2980b9; height: 30px;"></div>
+                        <div style="padding: 5px;">
+                            <div style="height: 4px; background: #ccc; width: 70%;"></div>
+                            <div style="height: 3px; background: #eee; margin-top: 4px;"></div>
+                        </div>
+                    </div>
+                    <h4 style="color: white; font-size: 0.9rem; margin: 8px 0 4px;">Student / Fresher</h4>
+                    <p style="color: #88a; font-size: 0.7rem;">Highlights education & projects</p>
+                    <button class="btn-xxs use-template-btn">Use Template</button>
+                </div>
+                <!-- Developer Template -->
+                <div class="template-item" data-template="developer">
+                    <div class="template-mock developer-mock" style="background: #1e1e1e; color: #ccc; font-family: monospace; padding: 8px;">
+                        <div style="color: #4ec9b0;">&lt;/&gt;</div>
+                        <div style="height: 3px; background: #555; width: 80%; margin-top: 5px;"></div>
+                    </div>
+                    <h4 style="color: white; font-size: 0.9rem; margin: 8px 0 4px;">Developer ATS</h4>
+                    <p style="color: #88a; font-size: 0.7rem;">For SWEs & tech stack</p>
+                    <button class="btn-xxs use-template-btn">Use Template</button>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script>
+    // Helper to escape HTML (must be defined before use)
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // Global download function
+    window.downloadResume = async function(id) {
+        try {
+            await fetch(`/api/resume/download/${id}`, { method: 'POST', credentials: 'include' });
+            window.location.href = `builder.html?id=${id}&print=true`;
+        } catch (err) {
+            console.error('Download error:', err);
+            alert('Failed to download resume');
+        }
+    };
+
+    // Single auth check: fetch user
+    fetch('/api/auth/user', { credentials: 'include' })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.isLoggedIn) {
+                window.location.href = 'login.html';
+            } else {
+                const redirect = sessionStorage.getItem('redirectAfterLogin');
+                if (redirect) {
+                    sessionStorage.removeItem('redirectAfterLogin');
+                    window.location.href = redirect;
+                    return; // stop further execution
+                }
+                const userName = data.user.fullName || data.user.username;
+                document.getElementById('side-username').textContent = userName;
+                const greeting = document.querySelector('.user-greeting p');
+                if (greeting) greeting.textContent = `Welcome Back, ${userName}!`;
+            }
+        })
+        .catch(() => { window.location.href = 'login.html'; });
+
+    // Load dashboard data
+    async function loadDashboardData() {
+        try {
+            // Fetch stats
+            const statsRes = await fetch('/api/user/stats', { credentials: 'include' });
+            if (statsRes.ok) {
+                const stats = await statsRes.json();
+                document.getElementById('stat-resumes').textContent = stats.resumesCreated;
+                document.getElementById('stat-downloads').textContent = stats.downloads;
+                document.getElementById('stat-views').textContent = stats.profileViews;
+                document.getElementById('stat-ats-avg').textContent = (stats.atsScoreAvg || 0) + '/100';
+                console.log('Stats loaded:', stats);
+            }
+
+            // Fetch list of resumes
+            const listRes = await fetch('/api/resume/list', { credentials: 'include' });
+            if (!listRes.ok) {
+                console.error('Failed to fetch resumes:', listRes.status);
+                return;
+            }
+            const resumes = await listRes.json();
+            console.log('Resumes received:', resumes);
+
+            const container = document.getElementById('recent-resumes-container');
+            if (!container) {
+                console.error('Container #recent-resumes-container not found');
+                return;
+            }
+
+            if (!resumes || resumes.length === 0) {
+                container.innerHTML = '<div style="color: #88a; text-align: center; padding: 20px;">No resumes created yet. Head over to the builder to create one!</div>';
+                // Update progress to 0
+                document.getElementById('dash-progress-pct').textContent = '0%';
+                document.getElementById('dash-progress-circle').style.strokeDasharray = '0, 100';
+                document.getElementById('dash-progress-status').textContent = 'Not Started';
+                return;
+            }
+
+            // Calculate average progress (simplified – counts fields that have content)
+            let totalProgress = 0;
+            resumes.forEach(r => {
+                const data = r.data || {};
+                const fields = ['name', 'email', 'summary', 'skills', 'experience', 'education', 'projects'];
+                let filled = 0;
+                fields.forEach(f => {
+                    if (data[f] && data[f].trim && data[f].trim()) filled++;
+                    else if (data[f] && Array.isArray(data[f]) && data[f].length) filled++; // for arrays like skills, experiences, etc.
+                });
+                totalProgress += (filled / fields.length) * 100;
+            });
+            const avgProgress = Math.round(totalProgress / resumes.length);
+            document.getElementById('dash-progress-pct').textContent = `${avgProgress}%`;
+            document.getElementById('dash-progress-circle').style.strokeDasharray = `${avgProgress}, 100`;
+            document.getElementById('dash-progress-status').textContent = avgProgress === 100 ? 'Completed' : 'In Progress';
+
+            // Display up to 3 most recent resumes
+            container.innerHTML = '';
+            const recentResumes = resumes.slice(0, 3);
+            recentResumes.forEach(resume => {
+                const title = resume.title || 'Untitled Resume';
+                const card = document.createElement('div');
+                card.className = 'resume-preview-card hover-lift';
+                card.innerHTML = `
+                    <div class="card-head">
+                        <i class="fa-solid fa-file-contract neon-text-blue"></i>
+                        <span>${escapeHtml(title)}</span>
+                    </div>
+                    <div class="card-body-mock">
+                        <div class="mock-line"></div>
+                        <div class="mock-line w-75"></div>
+                        <div class="mock-line"></div>
+                        <div class="mock-line w-50"></div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn-sm btn-neon" onclick="window.location.href='builder.html?id=${resume.id}'">View/Edit</button>
+                        <button class="btn-sm btn-outline" onclick="downloadResume('${resume.id}')"><i class="fa-solid fa-download"></i> Download</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            // If there are more than 3, add a "View All" link that goes to the dedicated "My Resumes" page
+            if (resumes.length > 3) {
+                const viewAll = document.createElement('div');
+                viewAll.style.textAlign = 'center';
+                viewAll.style.marginTop = '15px';
+                viewAll.innerHTML = `<a href="my-resumes.html" style="color: #4df; text-decoration: none;">View all ${resumes.length} resumes →</a>`;
+                container.appendChild(viewAll);
+            }
+
+        } catch (err) {
+            console.error('Error loading dashboard data:', err);
+            const container = document.getElementById('recent-resumes-container');
+            if (container) {
+                container.innerHTML = '<div style="color: #ff6666; text-align: center; padding: 20px;">Error loading resumes. Please refresh the page.</div>';
+            }
+        }
+    }
+
+    // Call load function when page is ready
+    document.addEventListener('DOMContentLoaded', () => {
+        loadDashboardData();
+    });
+
+    // Template selection: save to localStorage and redirect to builder
+    document.querySelectorAll('.use-template-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const templateItem = btn.closest('.template-item');
+            const template = templateItem.dataset.template;
+            if (template) {
+                localStorage.setItem('ats_selected_template', template);
+                window.location.href = 'builder.html';
+            }
+        });
+    });
+
+    // Optional: close icons on checklist
+    document.querySelectorAll('.close-icon').forEach(icon => {
+        icon.addEventListener('click', (e) => {
+            const item = icon.closest('.check-item');
+            if (item) item.style.display = 'none';
+        });
+    });
+
+    // ========== AI CHAT WITH VOICE AND MEMORY ==========
+    (function() {
+        let chatHistory = JSON.parse(localStorage.getItem('ai_chat_history') || '[]');
+        const messagesContainer = document.getElementById('ai-chat-messages');
+        const chatInput = document.getElementById('ai-chat-input');
+        const sendBtn = document.getElementById('ai-chat-send');
+        const voiceBtn = document.getElementById('ai-voice-btn');
+        const saveChatBtn = document.getElementById('ai-save-chat');
+        const toggleBtn = document.getElementById('ai-chat-toggle');
+        const chatContent = document.getElementById('ai-chat-content');
+        const chatIcon = document.getElementById('ai-chat-icon');
+
+        // Load collapsed state
+        let isOpen = localStorage.getItem('ai_chat_open') === 'true';
+        if (isOpen) {
+            chatContent.style.display = 'block';
+            chatIcon.classList.remove('fa-chevron-down');
+            chatIcon.classList.add('fa-chevron-up');
+        }
+        toggleBtn.addEventListener('click', () => {
+            const isVisible = chatContent.style.display !== 'none';
+            chatContent.style.display = isVisible ? 'none' : 'block';
+            localStorage.setItem('ai_chat_open', !isVisible);
+            chatIcon.classList.toggle('fa-chevron-down');
+            chatIcon.classList.toggle('fa-chevron-up');
+        });
+
+        function displayMessages() {
+            if (!messagesContainer) return;
+            messagesContainer.innerHTML = '';
+            chatHistory.forEach(msg => {
+                const div = document.createElement('div');
+                div.className = `ai-message ${msg.role === 'user' ? 'user' : 'bot'}`;
+                div.textContent = msg.text;
+                messagesContainer.appendChild(div);
+            });
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        displayMessages();
+
+        async function sendMessage(text) {
+            if (!text.trim()) return;
+            chatHistory.push({ role: 'user', text: text });
+            displayMessages();
+            localStorage.setItem('ai_chat_history', JSON.stringify(chatHistory));
+
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'ai-message bot';
+            typingDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Thinking...';
+            messagesContainer.appendChild(typingDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            try {
+                const response = await fetch('/api/ai/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ userMessage: text, resumeContent: '' })
+                });
+                const data = await response.json();
+                const botReply = data.response || 'Sorry, I could not process that.';
+                messagesContainer.removeChild(typingDiv);
+                chatHistory.push({ role: 'bot', text: botReply });
+                displayMessages();
+                localStorage.setItem('ai_chat_history', JSON.stringify(chatHistory));
+            } catch (err) {
+                messagesContainer.removeChild(typingDiv);
+                const errorMsg = 'Network error. Please try again.';
+                chatHistory.push({ role: 'bot', text: errorMsg });
+                displayMessages();
+                localStorage.setItem('ai_chat_history', JSON.stringify(chatHistory));
+            }
+            chatInput.value = '';
+        }
+
+        sendBtn.addEventListener('click', () => sendMessage(chatInput.value));
+        chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(chatInput.value); });
+
+        let recognition = null;
+        voiceBtn.addEventListener('click', () => {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert('Voice recognition not supported in this browser.');
+                return;
+            }
+            if (recognition) {
+                recognition.stop();
+                recognition = null;
+                voiceBtn.classList.remove('recording');
+                return;
+            }
+            recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.onstart = () => {
+                voiceBtn.classList.add('recording');
+                voiceBtn.innerHTML = '<i class="fa-solid fa-stop"></i>';
+            };
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                chatInput.value = transcript;
+                sendMessage(transcript);
+            };
+            recognition.onerror = (event) => {
+                console.error('Speech error:', event.error);
+                alert('Voice recognition error: ' + event.error);
+                voiceBtn.classList.remove('recording');
+                voiceBtn.innerHTML = '<i class="fa-solid fa-microphone"></i>';
+                recognition = null;
+            };
+            recognition.onend = () => {
+                voiceBtn.classList.remove('recording');
+                voiceBtn.innerHTML = '<i class="fa-solid fa-microphone"></i>';
+                recognition = null;
+            };
+            recognition.start();
+        });
+
+        saveChatBtn.addEventListener('click', () => {
+            let content = "AI Conversation History\n" + "=".repeat(40) + "\n\n";
+            chatHistory.forEach(msg => {
+                content += `${msg.role.toUpperCase()}: ${msg.text}\n\n`;
+            });
+            const blob = new Blob([content], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `chat_history_${new Date().toISOString().slice(0,19)}.txt`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        });
+    })();
+</script>
+<script src="script.js"></script>
+</body>
+</html>

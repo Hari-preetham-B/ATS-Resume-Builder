@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mock Interview | ATS Resume Builder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/dashboard.css">
+    <style>
+        /* same styles as before */
+        .mock-container { padding: 20px; max-width: 1000px; margin: 0 auto; }
+        .setup-panel, .interview-panel { background: rgba(20,25,60,0.4); border-radius: 20px; padding: 25px; margin-bottom: 20px; }
+        .camera-container { position: relative; width: 100%; max-width: 640px; margin: 0 auto; }
+        video { width: 100%; border-radius: 16px; background: #1a1a2e; border: 1px solid rgba(100,150,255,0.3); }
+        .question-area { text-align: center; margin: 20px 0; }
+        .question-text { font-size: 1.3rem; color: #4df; font-weight: 500; line-height: 1.4; }
+        .timer { font-size: 2.5rem; font-family: monospace; text-align: center; margin: 15px 0; }
+        .record-btn, .submit-btn, .text-submit-btn { padding: 12px 24px; border-radius: 30px; font-weight: bold; border: none; cursor: pointer; margin: 0 10px; }
+        .record-btn { background: #ff3366; color: white; }
+        .record-btn.recording { background: #ff0000; animation: pulse 1s infinite; }
+        .submit-btn, .text-submit-btn { background: #4df; color: black; }
+        .result-box { background: rgba(0,0,0,0.5); border-radius: 12px; padding: 15px; margin-top: 20px; position: relative; }
+        .delete-feedback-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: rgba(255,51,102,0.2);
+            border: none;
+            color: #ff3366;
+            font-size: 1.2rem;
+            cursor: pointer;
+            border-radius: 20px;
+            padding: 2px 10px;
+            transition: 0.2s;
+        }
+        .delete-feedback-btn:hover {
+            background: #ff3366;
+            color: white;
+        }
+        .text-answer-area { margin: 20px 0; }
+        .text-answer-area textarea { width: 100%; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 15px; color: white; font-size: 1rem; min-height: 120px; }
+        .mode-toggle { margin-bottom: 20px; display: flex; gap: 10px; justify-content: center; }
+        .mode-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 30px; cursor: pointer; }
+        .mode-btn.active { background: #4df; color: black; }
+        .resume-textarea-area { background: rgba(0,0,0,0.3); border-radius: 16px; padding: 25px; margin-bottom: 20px; }
+        .resume-textarea-area textarea { width: 100%; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 15px; color: white; font-size: 0.9rem; min-height: 250px; font-family: inherit; resize: vertical; }
+        .resume-textarea-area textarea:focus { outline: none; border-color: #4df; }
+        .validate-btn { background: #4df; color: black; border: none; padding: 12px 30px; border-radius: 30px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 1rem; }
+        .validate-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .validation-result { margin-top: 15px; padding: 12px; border-radius: 12px; display: none; }
+        .validation-result.success { background: rgba(77, 221, 255, 0.2); border: 1px solid #4df; display: block; color: #4df; }
+        .validation-result.error { background: rgba(255, 51, 102, 0.2); border: 1px solid #ff3366; display: block; color: #ff3366; }
+        .validation-result.info { background: rgba(255, 170, 68, 0.2); border: 1px solid #ffaa44; display: block; color: #ffaa44; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+        .btn-sm { padding: 5px 12px; font-size: 0.8rem; border-radius: 20px; background: white; color: black; border: none; cursor: pointer; }
+        .btn-outline { background: transparent; border: 1px solid #4df; color: #4df; padding: 8px 20px; border-radius: 30px; cursor: pointer; }
+    </style>
+</head>
+<body class="layout-app">
+    <aside class="sidebar premium-glass panel-glow">
+        <div class="sidebar-header">
+            <span class="logo-icon"><i class="fa-solid fa-file-contract neon-text-blue"></i></span>
+            <span class="logo-text font-bold text-white">Resume<span class="neon-text-blue">Pro</span></span>
+        </div>
+        <div class="sidebar-profile">
+            <div class="profile-img-container">
+                <i class="fa-solid fa-user-circle" style="font-size: 3rem; color: #4df;"></i>
+            </div>
+            <div class="profile-info">
+                <h4 id="side-username">User Name</h4>
+                <p>Premium Member</p>
+            </div>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="dashboard.html"><i class="fa-solid fa-house"></i> Dashboard</a></li>
+            <li><a href="builder.html"><i class="fa-solid fa-file-signature"></i> Create Resume</a></li>
+            <li><a href="my-resumes.html"><i class="fa-solid fa-folder-open"></i> My Resumes</a></li>
+            <li><a href="applications.html"><i class="fa-solid fa-briefcase"></i> Job Applications</a></li>
+            <li><a href="mock-interview.html" class="active"><i class="fa-solid fa-video"></i> Mock Interview</a></li>
+            <li><a href="templates.html"><i class="fa-solid fa-layer-group"></i> ATS Templates</a></li>
+            <li><a href="ai-assistant.html"><i class="fa-solid fa-robot"></i> AI Assistant</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <h2 class="neon-text-blue">🎯 Mock Interview</h2>
+                <p class="text-muted text-sm">Paste your resume | AI validates | Record your answers</p>
+            </div>
+        </header>
+        <div class="mock-container">
+            <div id="setup-panel" class="setup-panel">
+                <h3>Start a new mock interview</h3>
+                <div class="resume-textarea-area">
+                    <label style="display: block; margin-bottom: 10px;"><i class="fa-solid fa-file-lines"></i> Paste Your Resume Here:</label>
+                    <textarea id="resumeText" placeholder="Paste your resume content..."></textarea>
+                    <button id="validateBtn" class="validate-btn"><i class="fa-solid fa-check-circle"></i> Validate Resume</button>
+                    <div id="validationResult" class="validation-result"></div>
+                </div>
+                <div id="camera-error" style="display:none; background:#ff3366; color:white; padding:10px; border-radius:8px; margin-top:15px;">
+                    ⚠️ Camera access required. <button id="retry-camera" class="btn-sm">Allow Access</button>
+                </div>
+            </div>
+
+            <div id="interview-panel" class="interview-panel" style="display:none;">
+                <div class="mode-toggle">
+                    <button id="video-mode-btn" class="mode-btn active">🎥 Video Mode</button>
+                    <button id="text-mode-btn" class="mode-btn">✍️ Text Mode</button>
+                </div>
+                <div class="question-area">
+                    <div class="question-text" id="question-display">Loading question...</div>
+                </div>
+                <div id="video-mode-ui">
+                    <div class="camera-container">
+                        <video id="camera-preview" autoplay muted playsinline></video>
+                    </div>
+                    <div class="timer" id="timer">01:00</div>
+                    <div style="text-align:center">
+                        <button id="record-btn" class="record-btn">🎤 Start Recording</button>
+                        <button id="submit-btn" class="submit-btn" disabled>📤 Submit</button>
+                    </div>
+                </div>
+                <div id="text-mode-ui" style="display:none;">
+                    <div class="text-answer-area">
+                        <textarea id="text-answer" placeholder="Type your answer here..."></textarea>
+                    </div>
+                    <div style="text-align:center">
+                        <button id="text-submit-btn" class="text-submit-btn">📤 Submit Answer</button>
+                    </div>
+                </div>
+                <div id="result-area" class="result-box" style="display:none;">
+                    <button id="deleteFeedbackBtn" class="delete-feedback-btn" title="Delete feedback">✖</button>
+                    <div id="feedback-content"></div>
+                </div>
+                <div style="text-align:center; margin-top:15px;">
+                    <button id="next-btn" class="btn-outline" style="display:none;">Next Question →</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- DOM Elements ---
+        const videoElement = document.getElementById('camera-preview');
+        const resumeTextarea = document.getElementById('resumeText');
+        const validateBtn = document.getElementById('validateBtn');
+        const validationResult = document.getElementById('validationResult');
+        
+        // --- State Variables ---
+        let stream = null;
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let remainingSeconds = 60;
+        let timerInterval = null;
+        let currentSessionId = null;
+        let currentQuestions = [];
+        let currentIndex = 0;
+        let isRecording = false;
+        let currentMode = 'video';
+        let uploadedResumeText = null;
+        
+        // --- Resume Validation (unchanged) ---
+        async function validateResume() {
+            const resumeText = resumeTextarea.value.trim();
+            if (!resumeText) {
+                showValidationResult('error', 'Please paste your resume content.');
+                return false;
+            }
+            if (resumeText.length < 100) {
+                showValidationResult('error', `Resume too short (${resumeText.length} chars). Minimum 100 characters.`);
+                return false;
+            }
+            showValidationResult('info', '🔍 AI validating resume...');
+            validateBtn.disabled = true;
+            validateBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Validating...';
+            
+            try {
+                const res = await fetch('/api/mock-interview/validate-resume', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ resume_text: resumeText })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                
+                if (data.is_valid) {
+                    showValidationResult('success', `✅ ${data.message || 'Resume valid!'} Found: ${data.detected_sections || 'Experience, Skills, Education'}`);
+                    uploadedResumeText = resumeText;
+                    startInterview();
+                    return true;
+                } else {
+                    showValidationResult('error', `❌ ${data.message || 'Not a valid resume'}`);
+                    return false;
+                }
+            } catch (err) {
+                showValidationResult('error', `Validation error: ${err.message}`);
+                return false;
+            } finally {
+                validateBtn.disabled = false;
+                validateBtn.innerHTML = '<i class="fa-solid fa-check-circle"></i> Validate Resume';
+            }
+        }
+        
+        function showValidationResult(type, message) {
+            validationResult.className = `validation-result ${type}`;
+            validationResult.innerHTML = message;
+        }
+        
+        // --- Camera Setup (no face stuff) ---
+        async function requestCamera() {
+            try {
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
+                stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                videoElement.srcObject = stream;
+                document.getElementById('camera-error').style.display = 'none';
+                return true;
+            } catch(err) {
+                console.error(err);
+                document.getElementById('camera-error').style.display = 'block';
+                return false;
+            }
+        }
+        
+        document.getElementById('retry-camera')?.addEventListener('click', () => requestCamera());
+        
+        // --- Mode Toggling ---
+        document.getElementById('video-mode-btn').onclick = async () => {
+            currentMode = 'video';
+            document.getElementById('video-mode-btn').classList.add('active');
+            document.getElementById('text-mode-btn').classList.remove('active');
+            document.getElementById('video-mode-ui').style.display = 'block';
+            document.getElementById('text-mode-ui').style.display = 'none';
+            if (!stream) await requestCamera();
+        };
+        
+        document.getElementById('text-mode-btn').onclick = () => {
+            currentMode = 'text';
+            document.getElementById('text-mode-btn').classList.add('active');
+            document.getElementById('video-mode-btn').classList.remove('active');
+            document.getElementById('video-mode-ui').style.display = 'none';
+            document.getElementById('text-mode-ui').style.display = 'block';
+            if (mediaRecorder?.state === 'recording') mediaRecorder.stop();
+            if (timerInterval) clearInterval(timerInterval);
+        };
+        
+        // --- Interview Start ---
+        async function startInterview() {
+            if (!uploadedResumeText) return;
+            validateBtn.disabled = true;
+            validateBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Starting...';
+            if (currentMode === 'video') {
+                const ok = await requestCamera();
+                if (!ok) {
+                    alert('Camera required for video mode. Switch to text mode.');
+                    validateBtn.disabled = false;
+                    validateBtn.innerHTML = '<i class="fa-solid fa-check-circle"></i> Validate Resume';
+                    return;
+                }
+            }
+            try {
+                const res = await fetch('/api/mock-interview/start-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ resume_text: uploadedResumeText })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                currentSessionId = data.session_id;
+                currentQuestions = data.questions;
+                currentIndex = 0;
+                document.getElementById('setup-panel').style.display = 'none';
+                document.getElementById('interview-panel').style.display = 'block';
+                loadQuestion(0);
+            } catch(err) {
+                alert(err.message);
+            } finally {
+                validateBtn.disabled = false;
+                validateBtn.innerHTML = '<i class="fa-solid fa-check-circle"></i> Validate Resume';
+            }
+        }
+        
+        // --- Interview Flow ---
+        function loadQuestion(index) {
+            if (index >= currentQuestions.length) { endInterview(); return; }
+            document.getElementById('question-display').innerText = currentQuestions[index];
+            resetRecording();
+            document.getElementById('result-area').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            if (currentMode === 'video') {
+                document.getElementById('record-btn').disabled = false;
+                document.getElementById('submit-btn').disabled = true;
+                document.getElementById('record-btn').classList.remove('recording');
+                document.getElementById('record-btn').innerHTML = '🎤 Start Recording';
+                remainingSeconds = 60;
+                updateTimerDisplay();
+            } else {
+                document.getElementById('text-answer').value = '';
+            }
+        }
+        
+        function updateTimerDisplay() {
+            const mins = Math.floor(remainingSeconds / 60);
+            const secs = remainingSeconds % 60;
+            document.getElementById('timer').innerText = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+        }
+        
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (remainingSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    if (mediaRecorder?.state === 'recording') stopRecordingAndSubmit();
+                } else {
+                    remainingSeconds--;
+                    updateTimerDisplay();
+                }
+            }, 1000);
+        }
+        
+        function stopRecording() {
+            if (mediaRecorder?.state === 'recording') mediaRecorder.stop();
+            if (timerInterval) clearInterval(timerInterval);
+            isRecording = false;
+        }
+        
+        async function stopRecordingAndSubmit() {
+            stopRecording();
+            document.getElementById('record-btn').disabled = true;
+            document.getElementById('submit-btn').disabled = true;
+            document.getElementById('result-area').style.display = 'block';
+            const feedbackContentDiv = document.getElementById('feedback-content');
+            feedbackContentDiv.innerHTML = '<div style="text-align:center"><i class="fa-solid fa-spinner fa-spin"></i> Evaluating...</div>';
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            const reader = new FileReader();
+            reader.readAsDataURL(blob);
+            reader.onloadend = async () => {
+                const facePresence = 0; // face tracking removed
+                try {
+                    const res = await fetch('/api/mock-interview/submit-answer', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            session_id: currentSessionId,
+                            question_index: currentIndex,
+                            video: reader.result,
+                            eye_contact: facePresence
+                        })
+                    });
+                    const evalData = await res.json();
+                    if (!res.ok) throw new Error(evalData.error);
+                    // Display feedback with delete button already present
+                    feedbackContentDiv.innerHTML = `
+                        <h3>🎯 Score: ${evalData.score}/100</h3>
+                        <p><strong>💬 Feedback:</strong> ${evalData.feedback}</p>
+                        <p><strong>💡 Tips:</strong> ${evalData.tips.join(', ')}</p>
+                        <p><em>📝 Transcript: ${evalData.transcript}</em></p>
+                        <a href="ai-assistant.html?feedback=${encodeURIComponent(evalData.feedback)}&score=${evalData.score}&question=${encodeURIComponent(currentQuestions[currentIndex])}&answer=${encodeURIComponent(evalData.transcript)}" target="_blank" class="btn-primary" style="display:inline-block; margin-top:10px;">🤖 Ask AI Assistant →</a>
+                    `;
+                    document.getElementById('next-btn').style.display = 'inline-block';
+                } catch(err) {
+                    feedbackContentDiv.innerHTML = `<div style="color:#ff3366">Error: ${err.message}</div>`;
+                }
+            };
+            recordedChunks = [];
+        }
+        
+        function startRecording() {
+            recordedChunks = [];
+            if (!stream) { alert('Camera not ready'); return; }
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
+            mediaRecorder.start(1000);
+            startTimer();
+            document.getElementById('record-btn').classList.add('recording');
+            document.getElementById('record-btn').innerHTML = '🔴 Recording...';
+            document.getElementById('submit-btn').disabled = false;
+            isRecording = true;
+        }
+        
+        function resetRecording() {
+            if (mediaRecorder?.state === 'recording') mediaRecorder.stop();
+            if (timerInterval) clearInterval(timerInterval);
+            recordedChunks = [];
+            isRecording = false;
+        }
+        
+        // --- Delete feedback (clear conversation) ---
+        function deleteFeedback() {
+            const resultBox = document.getElementById('result-area');
+            resultBox.style.display = 'none';
+            // Optionally clear content inside too
+            document.getElementById('feedback-content').innerHTML = '';
+        }
+        
+        document.getElementById('record-btn').onclick = () => {
+            if (isRecording) stopRecordingAndSubmit();
+            else startRecording();
+        };
+        document.getElementById('submit-btn').onclick = () => {
+            if (!recordedChunks.length && !isRecording) alert('Start recording first.');
+            else if (isRecording) stopRecordingAndSubmit();
+            else if (recordedChunks.length) stopRecordingAndSubmit();
+        };
+        
+        document.getElementById('text-submit-btn').onclick = async () => {
+            const answer = document.getElementById('text-answer').value.trim();
+            if (!answer) { alert('Type your answer.'); return; }
+            document.getElementById('result-area').style.display = 'block';
+            const feedbackContentDiv = document.getElementById('feedback-content');
+            feedbackContentDiv.innerHTML = '<div><i class="fa-solid fa-spinner fa-spin"></i> Evaluating...</div>';
+            try {
+                const res = await fetch('/api/mock-interview/submit-answer', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        session_id: currentSessionId,
+                        question_index: currentIndex,
+                        text_answer: answer
+                    })
+                });
+                const evalData = await res.json();
+                if (!res.ok) throw new Error(evalData.error);
+                feedbackContentDiv.innerHTML = `
+                    <h3>🎯 Score: ${evalData.score}/100</h3>
+                    <p><strong>💬 Feedback:</strong> ${evalData.feedback}</p>
+                    <p><strong>💡 Tips:</strong> ${evalData.tips.join(', ')}</p>
+                    <a href="ai-assistant.html?feedback=${encodeURIComponent(evalData.feedback)}&score=${evalData.score}&question=${encodeURIComponent(currentQuestions[currentIndex])}&answer=${encodeURIComponent(answer)}" target="_blank" class="btn-primary" style="display:inline-block; margin-top:10px;">🤖 Ask AI Assistant →</a>
+                `;
+                document.getElementById('next-btn').style.display = 'inline-block';
+            } catch(err) {
+                feedbackContentDiv.innerHTML = `<div style="color:#ff3366">Error: ${err.message}</div>`;
+            }
+        };
+        
+        document.getElementById('next-btn').onclick = () => { currentIndex++; loadQuestion(currentIndex); };
+        
+        // Attach delete button listener
+        document.getElementById('deleteFeedbackBtn').addEventListener('click', deleteFeedback);
+        
+        async function endInterview() {
+            await fetch('/api/mock-interview/end-session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ session_id: currentSessionId })
+            });
+            alert('🎉 Interview completed!');
+            document.getElementById('setup-panel').style.display = 'block';
+            document.getElementById('interview-panel').style.display = 'none';
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+        }
+        
+        // --- Event Listeners ---
+        validateBtn.addEventListener('click', validateResume);
+        
+        // --- Load user info ---
+        async function loadUserInfo() {
+            try {
+                const res = await fetch('/api/auth/user', { credentials: 'include' });
+                const data = await res.json();
+                if (data.isLoggedIn) {
+                    document.getElementById('side-username').innerText = data.user.fullName || data.user.username;
+                } else {
+                    window.location.href = 'login.html';
+                }
+            } catch(e) {
+                window.location.href = 'login.html';
+            }
+        }
+        loadUserInfo();
+    </script>
+</body>
+</html>
