@@ -144,5 +144,5 @@ This project is designed to be **deployed easily on Hugging Face Spaces** (using
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/ats-resume-builder.git
+   git clone https://github.com/Hari-preetham-B/ATS-Resume-Builder.git
    cd ats-resume-builder
