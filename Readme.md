@@ -11,7 +11,7 @@ pinned: false
 
 # 🚀 ATS Resume Builder – Complete Job Search Platform
 
-[![Hugging Face Spaces](https://img.shields.io/badge/🤗-Spaces-blue)](https://huggingface.co/spaces/YOUR_USERNAME/YOUR_SPACE_NAME)
+[![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97-Spaces-blue)](https://huggingface.co/spaces)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/Flask-2.3.2-black)](https://flask.palletsprojects.com/)
