@@ -108,16 +108,6 @@ This project is designed to be **deployed easily on Hugging Face Spaces** (using
 
 ---
 
-## 🖼️ Demo & Screenshots
-
-> *(Add screenshots of your dashboard, builder, applications page, and gallery here.)*
-
-![Dashboard](https://via.placeholder.com/800x400?text=Dashboard+Screenshot)
-![Resume Builder](https://via.placeholder.com/800x400?text=Builder+Screenshot)
-![Job Applications](https://via.placeholder.com/800x400?text=Applications+Screenshot)
-![Resume Gallery](https://via.placeholder.com/800x400?text=Gallery+Screenshot)
-
----
 
 ## 🛠️ Technology Stack
 
